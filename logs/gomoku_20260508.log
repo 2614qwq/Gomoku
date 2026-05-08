@@ -1222,3 +1222,9 @@
 20:29:26 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
 20:29:26 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
 20:29:51 | INFO    | gomoku.orchestrator  | 战术官: move=(6, 8), confidence=0.95
+20:30:15 | INFO    | gomoku.orchestrator  | 防守官: move=(6, 8), confidence=0.92
+20:30:15 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+20:30:15 | INFO    | gomoku.orchestrator  | 检测到共识: (6, 8), 跳过后续流程
+20:30:15 | INFO    | gomoku.orchestrator  | 共识达成: move=[6, 8], 跳过总策划官
+20:30:15 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 8), phase=normal
+20:30:16 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=8)
