@@ -1,0 +1,803 @@
+00:09:21 | INFO    | gomoku.test          | Test logger OK
+00:09:21 | DEBUG   | gomoku.test          | Debug works
+00:09:21 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=O, is_rethink=False
+00:09:21 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=O, is_rethink=False
+00:11:30 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=O, is_rethink=False
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 6), phase=simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 开始分析 turn=2, color=X, is_rethink=False
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 开始分析 turn=3, color=O, is_rethink=False
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 5), phase=simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 4), phase=simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 开始分析 turn=5, color=O, is_rethink=False
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 7), phase=simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 6), phase=simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=True
+00:11:31 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:11:31 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:11:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=True
+00:12:56 | INFO    | gomoku.game_window   | GUI 初始化完成
+00:13:01 | INFO    | gomoku.game_window   | AI 模式启用, mode=3
+00:13:02 | INFO    | gomoku.game_window   | AI 先手，准备落子
+00:13:02 | INFO    | gomoku.game_window   | AI 开始思考 (turn=0)
+00:13:02 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+00:13:02 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:13:02 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:13:02 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=True
+00:13:02 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=7)
+00:13:03 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+00:13:03 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+00:13:03 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:13:03 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:13:03 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 6), phase=simple, skip_llm=True
+00:13:03 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=6)
+00:13:04 | INFO    | gomoku.game_window   | AI 开始思考 (turn=2)
+00:13:04 | INFO    | gomoku.orchestrator  | 开始分析 turn=2, color=X, is_rethink=False
+00:13:04 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:13:04 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:13:04 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=True
+00:13:04 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=6)
+00:13:05 | INFO    | gomoku.game_window   | AI 开始思考 (turn=3)
+00:13:05 | INFO    | gomoku.orchestrator  | 开始分析 turn=3, color=O, is_rethink=False
+00:13:05 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:13:05 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:13:05 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 5), phase=simple, skip_llm=True
+00:13:05 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=5)
+00:13:05 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+00:13:05 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+00:13:05 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:13:05 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:13:05 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 4), phase=simple, skip_llm=True
+00:13:05 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=8, y=4)
+00:13:06 | INFO    | gomoku.game_window   | AI 开始思考 (turn=5)
+00:13:06 | INFO    | gomoku.orchestrator  | 开始分析 turn=5, color=O, is_rethink=False
+00:13:06 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+00:13:06 | INFO    | gomoku.orchestrator  | 使用引擎兜底（跳过 LLM）
+00:13:06 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 7), phase=simple, skip_llm=True
+00:13:06 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=7)
+00:13:07 | INFO    | gomoku.game_window   | AI 开始思考 (turn=6)
+00:13:07 | INFO    | gomoku.orchestrator  | 开始分析 turn=6, color=X, is_rethink=False
+00:13:07 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:13:07 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:13:09 | INFO    | gomoku.orchestrator  | 战术官: move=(4, 8), confidence=0.90
+00:13:09 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:15:31 | INFO    | gomoku.game_window   | GUI 关闭
+00:18:50 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+00:18:50 | DEBUG   | gomoku.orchestrator  | 局势分级: emergency, skip_llm=True
+00:19:16 | INFO    | gomoku.game_window   | GUI 初始化完成
+00:19:23 | INFO    | gomoku.game_window   | AI 模式启用, mode=1
+00:19:25 | DEBUG   | gomoku.game_window   | 人类落子: (8,5), turn=1, result=None
+00:19:26 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+00:19:26 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+00:19:26 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+00:19:26 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:19:28 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 4), confidence=0.60
+00:19:28 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:19:29 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 4), confidence=0.80
+00:19:29 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:19:33 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 4)
+00:19:33 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 4), phase=simple, skip_llm=False
+00:19:33 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=4)
+00:20:10 | INFO    | gomoku.game_window   | 招式触发 | 白棋: 困龙阵发动！封锁了(8,12)空位
+00:20:10 | DEBUG   | gomoku.game_window   | 人类落子: (8,7), turn=3, result=None
+00:20:10 | INFO    | gomoku.game_window   | AI 开始思考 (turn=3)
+00:20:10 | INFO    | gomoku.orchestrator  | 开始分析 turn=3, color=O, is_rethink=False
+00:20:10 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+00:20:10 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:20:12 | INFO    | gomoku.orchestrator  | 战术官: move=(8, 6), confidence=0.90
+00:20:12 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:20:13 | INFO    | gomoku.orchestrator  | 防守官: move=(8, 6), confidence=0.90
+00:20:13 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:20:18 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(8, 6)
+00:20:18 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 6), phase=simple, skip_llm=False
+00:20:18 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=8, y=6)
+00:20:36 | DEBUG   | gomoku.game_window   | 人类落子: (9,9), turn=5, result=None
+00:20:36 | INFO    | gomoku.game_window   | AI 开始思考 (turn=5)
+00:20:36 | INFO    | gomoku.orchestrator  | 开始分析 turn=5, color=O, is_rethink=False
+00:20:36 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+00:20:36 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:20:37 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 5), confidence=0.90
+00:20:37 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:20:39 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 5), confidence=0.85
+00:20:39 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:20:47 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 5)
+00:20:47 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 5), phase=simple, skip_llm=False
+00:20:47 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=5)
+00:20:47 | INFO    | gomoku.game_window   | 招式触发 | 白棋: 困龙阵发动！封锁了(1,1)空位
+00:20:47 | DEBUG   | gomoku.game_window   | 人类落子: (11,11), turn=7, result=None
+00:20:47 | INFO    | gomoku.game_window   | AI 开始思考 (turn=7)
+00:20:47 | INFO    | gomoku.orchestrator  | 开始分析 turn=7, color=O, is_rethink=False
+00:20:47 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+00:20:47 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:20:49 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 6), confidence=0.90
+00:20:49 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:20:50 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 6), confidence=0.95
+00:20:50 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:20:55 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 6)
+00:20:55 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=False
+00:20:55 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=6)
+00:21:07 | DEBUG   | gomoku.game_window   | 人类落子: (9,12), turn=9, result=None
+00:21:07 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+00:21:07 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+00:21:07 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:21:07 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:21:09 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.90
+00:21:09 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:21:10 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 4), confidence=1.00
+00:21:10 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:21:15 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 4)
+00:21:15 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 4), phase=normal, skip_llm=False
+00:21:15 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=12)
+00:21:16 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+00:21:16 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+00:21:16 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:21:16 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:21:17 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.90
+00:21:17 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:21:19 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 5), confidence=1.00
+00:21:19 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:21:24 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 5)
+00:21:24 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 5), phase=normal, skip_llm=False
+00:21:24 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=12)
+00:21:25 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+00:21:25 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+00:21:25 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:21:25 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:21:26 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 5), confidence=0.90
+00:21:26 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:21:28 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 5), confidence=1.00
+00:21:28 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:21:32 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 5)
+00:21:32 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 5), phase=normal, skip_llm=False
+00:21:32 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=12)
+00:21:33 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+00:21:33 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+00:21:33 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:21:33 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:21:34 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 6), confidence=0.90
+00:21:34 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:21:36 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 6), confidence=0.95
+00:21:36 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:21:41 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 6)
+00:21:41 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=normal, skip_llm=False
+00:21:41 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=12)
+00:21:42 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+00:21:42 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+00:21:42 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:21:42 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:21:43 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.90
+00:21:43 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:21:45 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 6), confidence=1.00
+00:21:45 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:21:50 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 6)
+00:21:50 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=normal, skip_llm=False
+00:21:50 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=12)
+00:21:51 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+00:21:51 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+00:21:51 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:21:51 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:21:52 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.90
+00:21:52 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:21:54 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 6), confidence=1.00
+00:21:54 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:21:59 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 6)
+00:21:59 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=normal, skip_llm=False
+00:21:59 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=12)
+00:22:00 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+00:22:00 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+00:22:00 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:22:00 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:22:01 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.90
+00:22:01 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:22:02 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=0.95
+00:22:02 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:22:07 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+00:22:07 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=normal, skip_llm=False
+00:22:08 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 克敌先机发动！对手快赢了，自动补1颗卡位子
+00:22:08 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=7)
+00:22:18 | DEBUG   | gomoku.game_window   | 人类落子: (3,11), turn=11, result=None
+00:22:19 | INFO    | gomoku.game_window   | AI 开始思考 (turn=11)
+00:22:19 | INFO    | gomoku.orchestrator  | 开始分析 turn=11, color=O, is_rethink=False
+00:22:19 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+00:22:19 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+00:22:20 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 8), confidence=0.90
+00:22:20 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+00:22:21 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 8), confidence=1.00
+00:22:21 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+00:22:26 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 8)
+00:22:26 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 8), phase=normal, skip_llm=False
+00:22:26 | INFO    | gomoku.game_window   | 游戏结束: 白棋获胜！🎉
+00:22:27 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=8)
+00:22:27 | INFO    | gomoku.game_window   | 游戏结束: 白棋获胜！🎉
+00:22:39 | INFO    | gomoku.game_window   | GUI 关闭
+10:22:02 | INFO    | gomoku.game_window   | GUI 初始化完成
+10:22:10 | INFO    | gomoku.game_window   | AI 模式启用, mode=1
+10:22:13 | DEBUG   | gomoku.game_window   | 人类落子: (5,3), turn=1, result=None
+10:22:13 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+10:22:13 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+10:22:13 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:22:13 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:22:16 | INFO    | gomoku.orchestrator  | 战术官: move=(5, 2), confidence=0.90
+10:22:16 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:22:17 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 2), confidence=0.85
+10:22:17 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:22:24 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(5, 2)
+10:22:24 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 2), phase=simple, skip_llm=False
+10:22:24 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=2)
+10:22:45 | INFO    | gomoku.game_window   | GUI 关闭
+10:23:00 | INFO    | gomoku.game_window   | GUI 初始化完成
+10:23:04 | INFO    | gomoku.game_window   | AI 模式启用, mode=2
+10:23:05 | INFO    | gomoku.game_window   | AI 先手，准备落子
+10:23:06 | INFO    | gomoku.game_window   | AI 开始思考 (turn=0)
+10:23:06 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+10:23:06 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:23:06 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:23:07 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.80
+10:23:07 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:23:08 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=0.80
+10:23:08 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:23:11 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:23:11 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:23:12 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=7)
+10:23:17 | INFO    | gomoku.game_window   | GUI 关闭
+10:48:18 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+10:48:18 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:48:18 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:48:20 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.60
+10:48:20 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:48:21 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=0.80
+10:48:21 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:48:24 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:48:24 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:49:28 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+10:49:28 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:49:28 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:49:30 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.60
+10:49:30 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:49:32 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=0.80
+10:49:32 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:49:34 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:49:34 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:51:17 | INFO    | gomoku.game_window   | GUI 初始化完成
+10:51:24 | INFO    | gomoku.game_window   | AI 模式启用, mode=1
+10:51:30 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+10:51:30 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:51:30 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:51:32 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.60
+10:51:32 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:51:33 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=0.80
+10:51:33 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:51:37 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:51:37 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:51:50 | DEBUG   | gomoku.game_window   | 人类落子: (7,7), turn=1, result=None
+10:51:50 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+10:51:50 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+10:51:50 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:51:50 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:51:52 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 6), confidence=0.90
+10:51:52 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:51:53 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 6), confidence=0.90
+10:51:53 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:51:56 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 6)
+10:51:56 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=False
+10:51:56 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=6)
+10:52:00 | INFO    | gomoku.orchestrator  | 开始分析 turn=2, color=X, is_rethink=False
+10:52:00 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:52:00 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:52:02 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 8), confidence=0.90
+10:52:02 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:52:03 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 8), confidence=0.90
+10:52:03 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:52:09 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 8)
+10:52:09 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 8), phase=simple, skip_llm=False
+10:52:18 | DEBUG   | gomoku.game_window   | 人类落子: (8,7), turn=3, result=None
+10:52:19 | INFO    | gomoku.game_window   | AI 开始思考 (turn=3)
+10:52:19 | INFO    | gomoku.orchestrator  | 开始分析 turn=3, color=O, is_rethink=False
+10:52:19 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:52:19 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:52:20 | INFO    | gomoku.orchestrator  | 战术官: move=(9, 7), confidence=0.90
+10:52:20 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:52:22 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 5), confidence=0.95
+10:52:22 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:52:27 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 5)
+10:52:27 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 5), phase=simple, skip_llm=False
+10:52:27 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 困龙阵发动！封锁了(7,2)空位
+10:52:27 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=5)
+10:52:41 | INFO    | gomoku.game_window   | GUI 关闭
+10:55:52 | INFO    | gomoku.game_window   | GUI 初始化完成
+10:55:56 | INFO    | gomoku.game_window   | AI 模式启用, mode=3
+10:55:57 | INFO    | gomoku.game_window   | AI 先手，准备落子
+10:55:57 | INFO    | gomoku.game_window   | AI 开始思考 (turn=0)
+10:55:57 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+10:55:57 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:55:57 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:55:59 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.60
+10:55:59 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:56:00 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=0.80
+10:56:00 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:56:04 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:56:04 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:56:04 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=7)
+10:56:05 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+10:56:05 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+10:56:05 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:56:05 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:56:06 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 6), confidence=0.90
+10:56:06 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:56:07 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 6), confidence=0.95
+10:56:07 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:56:11 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 6)
+10:56:11 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=False
+10:56:11 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=6)
+10:56:12 | INFO    | gomoku.game_window   | AI 开始思考 (turn=2)
+10:56:12 | INFO    | gomoku.orchestrator  | 开始分析 turn=2, color=X, is_rethink=False
+10:56:12 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:56:12 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:56:13 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 8), confidence=0.90
+10:56:13 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:56:14 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 8), confidence=0.95
+10:56:14 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:56:19 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 8)
+10:56:19 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 8), phase=simple, skip_llm=False
+10:56:19 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=8)
+10:56:20 | INFO    | gomoku.game_window   | AI 开始思考 (turn=3)
+10:56:20 | INFO    | gomoku.orchestrator  | 开始分析 turn=3, color=O, is_rethink=False
+10:56:20 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:56:20 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:56:21 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 9), confidence=0.90
+10:56:21 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:56:23 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 9), confidence=0.95
+10:56:23 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:56:29 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 9)
+10:56:29 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 9), phase=simple, skip_llm=False
+10:56:29 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 困龙阵发动！封锁了(7,2)空位
+10:56:29 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:56:30 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:56:30 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:56:30 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:56:30 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:56:31 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.80
+10:56:31 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:56:33 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=1.00
+10:56:33 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:56:38 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:56:38 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:56:38 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:56:39 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:56:39 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:56:39 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:56:39 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:56:40 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 6), confidence=0.90
+10:56:40 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:56:42 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 6), confidence=1.00
+10:56:42 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:56:47 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 6)
+10:56:47 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=False
+10:56:47 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:56:48 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:56:48 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:56:48 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:56:48 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:56:49 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 8), confidence=0.90
+10:56:49 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:56:51 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 8), confidence=0.95
+10:56:51 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:56:57 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 8)
+10:56:57 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 8), phase=simple, skip_llm=False
+10:56:57 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:56:58 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:56:58 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:56:58 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:56:58 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:56:59 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 8), confidence=0.90
+10:56:59 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:57:01 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 9), confidence=0.85
+10:57:01 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:57:11 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 9)
+10:57:11 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 9), phase=simple, skip_llm=False
+10:57:11 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:57:12 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:57:12 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:57:12 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:57:12 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:57:14 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.90
+10:57:14 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:57:15 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=1.00
+10:57:15 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:57:19 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:57:19 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:57:19 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:57:20 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:57:20 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:57:20 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:57:20 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:57:22 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 9), confidence=0.90
+10:57:22 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:57:23 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=1.00
+10:57:23 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:57:45 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:57:45 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:57:45 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:57:46 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:57:46 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:57:46 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:57:46 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:57:47 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 8), confidence=0.90
+10:57:47 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:57:48 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 8), confidence=0.95
+10:57:48 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:57:53 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 8)
+10:57:53 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 8), phase=simple, skip_llm=False
+10:57:53 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:57:54 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:57:54 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:57:54 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:57:54 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:57:55 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 6), confidence=0.80
+10:57:55 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:57:56 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 6), confidence=0.95
+10:57:56 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:58:01 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 6)
+10:58:01 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=False
+10:58:02 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:58:02 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:58:02 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:58:02 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:58:02 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:58:04 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 9), confidence=0.70
+10:58:04 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:58:05 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 9), confidence=0.95
+10:58:05 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:58:12 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 9)
+10:58:12 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 9), phase=simple, skip_llm=False
+10:58:12 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:58:13 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:58:13 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:58:13 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:58:13 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:58:14 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 7), confidence=0.90
+10:58:14 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:58:16 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 7), confidence=0.95
+10:58:16 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+10:58:21 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 7)
+10:58:21 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=False
+10:58:21 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+10:58:22 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+10:58:22 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+10:58:22 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=False
+10:58:22 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+10:58:24 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 8), confidence=0.90
+10:58:24 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+10:58:26 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 8), confidence=0.95
+10:58:26 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:26:44 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+11:26:44 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:26:44 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:26:44 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=True
+11:28:49 | INFO    | gomoku.orchestrator  | 开始分析 turn=6, color=X, is_rethink=False
+11:28:49 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:28:49 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:28:49 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 7), phase=simple, skip_llm=True
+11:37:59 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:37:59 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:37:59 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+11:37:59 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:37:59 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:37:59 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:37:59 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=True
+11:37:59 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+11:37:59 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:37:59 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:37:59 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:37:59 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:38:01 | INFO    | gomoku.orchestrator  | 战术官: move=(8, 9), confidence=0.90
+11:38:02 | INFO    | gomoku.orchestrator  | 防守官: move=(8, 9), confidence=0.95
+11:38:02 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:38:02 | INFO    | gomoku.orchestrator  | 检测到共识: (8, 9), 跳过后续流程
+11:38:02 | INFO    | gomoku.orchestrator  | 共识达成: move=[8, 9], 跳过总策划官
+11:38:02 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 9), phase=normal, skip_llm=False
+11:42:43 | INFO    | gomoku.game_window   | GUI 初始化完成
+11:42:48 | INFO    | gomoku.game_window   | AI 模式启用, mode=3
+11:42:48 | INFO    | gomoku.game_window   | AI 先手，准备落子
+11:42:49 | INFO    | gomoku.game_window   | AI 开始思考 (turn=0)
+11:42:49 | INFO    | gomoku.orchestrator  | 开始分析 turn=0, color=X, is_rethink=False
+11:42:49 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:42:49 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:42:49 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:42:49 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 7), phase=simple, skip_llm=True
+11:42:49 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=7)
+11:42:49 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+11:42:49 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+11:42:49 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:42:49 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:42:49 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:42:49 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 6), phase=simple, skip_llm=True
+11:42:49 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=6)
+11:42:50 | INFO    | gomoku.game_window   | AI 开始思考 (turn=2)
+11:42:50 | INFO    | gomoku.orchestrator  | 开始分析 turn=2, color=X, is_rethink=False
+11:42:50 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:42:50 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:42:50 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:42:50 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=True
+11:42:50 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=6)
+11:42:50 | INFO    | gomoku.game_window   | AI 开始思考 (turn=3)
+11:42:50 | INFO    | gomoku.orchestrator  | 开始分析 turn=3, color=O, is_rethink=False
+11:42:50 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:42:50 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:42:50 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:42:50 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 5), phase=simple, skip_llm=True
+11:42:50 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 梅花阵：生成了1颗花苞在(12,7)，将格挡对方1次落子
+11:42:50 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=5)
+11:42:50 | INFO    | gomoku.game_window   | AI 开始思考 (turn=4)
+11:42:50 | INFO    | gomoku.orchestrator  | 开始分析 turn=4, color=X, is_rethink=False
+11:42:50 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:42:50 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:42:50 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:42:50 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 4), phase=simple, skip_llm=True
+11:42:51 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=8, y=4)
+11:42:51 | INFO    | gomoku.game_window   | AI 开始思考 (turn=5)
+11:42:51 | INFO    | gomoku.orchestrator  | 开始分析 turn=5, color=O, is_rethink=False
+11:42:51 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:42:51 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:42:51 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:42:51 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 7), phase=simple, skip_llm=True
+11:42:51 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=7)
+11:42:51 | INFO    | gomoku.game_window   | AI 开始思考 (turn=6)
+11:42:51 | INFO    | gomoku.orchestrator  | 开始分析 turn=6, color=X, is_rethink=False
+11:42:51 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:42:51 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:42:51 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:42:51 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:42:54 | INFO    | gomoku.orchestrator  | 战术官: move=(4, 8), confidence=0.90
+11:42:54 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 8), confidence=0.95
+11:42:54 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:42:54 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:42:58 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 8)
+11:42:58 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 8), phase=normal, skip_llm=False
+11:42:59 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=8)
+11:42:59 | INFO    | gomoku.game_window   | AI 开始思考 (turn=7)
+11:42:59 | INFO    | gomoku.orchestrator  | 开始分析 turn=7, color=O, is_rethink=False
+11:42:59 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:42:59 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:42:59 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:42:59 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:00 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 9), confidence=0.90
+11:43:01 | INFO    | gomoku.orchestrator  | 防守官: move=(7, 9), confidence=0.95
+11:43:01 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:01 | INFO    | gomoku.orchestrator  | 检测到共识: (7, 9), 跳过后续流程
+11:43:01 | INFO    | gomoku.orchestrator  | 共识达成: move=[7, 9], 跳过总策划官
+11:43:01 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 9), phase=normal, skip_llm=False
+11:43:01 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 梅花阵：生成了1颗花苞在(2,3)，将格挡对方1次落子
+11:43:01 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=9)
+11:43:01 | INFO    | gomoku.game_window   | AI 开始思考 (turn=8)
+11:43:01 | INFO    | gomoku.orchestrator  | 开始分析 turn=8, color=X, is_rethink=False
+11:43:01 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:43:01 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:43:01 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:43:01 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:03 | INFO    | gomoku.orchestrator  | 战术官: move=(6, 8), confidence=0.90
+11:43:03 | INFO    | gomoku.orchestrator  | 防守官: move=(6, 7), confidence=0.95
+11:43:03 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:03 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:43:07 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(6, 7)
+11:43:07 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 7), phase=normal, skip_llm=False
+11:43:07 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=7)
+11:43:08 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+11:43:08 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+11:43:08 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:43:08 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:43:08 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:43:08 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:08 | INFO    | gomoku.orchestrator  | 战术官: move=(4, 8), confidence=0.90
+11:43:09 | INFO    | gomoku.orchestrator  | 防守官: move=(6, 8), confidence=1.00
+11:43:09 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:09 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:43:13 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(6, 8)
+11:43:13 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 8), phase=normal, skip_llm=False
+11:43:13 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=8)
+11:43:13 | INFO    | gomoku.game_window   | AI 开始思考 (turn=10)
+11:43:13 | INFO    | gomoku.orchestrator  | 开始分析 turn=10, color=X, is_rethink=False
+11:43:13 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:43:13 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:43:13 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:43:13 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:15 | INFO    | gomoku.orchestrator  | 战术官: move=(4, 6), confidence=0.90
+11:43:15 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 6), confidence=0.95
+11:43:15 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:15 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:43:20 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(5, 6)
+11:43:20 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 6), phase=normal, skip_llm=False
+11:43:20 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=6)
+11:43:21 | INFO    | gomoku.game_window   | AI 开始思考 (turn=11)
+11:43:21 | INFO    | gomoku.orchestrator  | 开始分析 turn=11, color=O, is_rethink=False
+11:43:21 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:43:21 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:43:21 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:43:21 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:22 | INFO    | gomoku.orchestrator  | 战术官: move=(4, 6), confidence=0.90
+11:43:22 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 7), confidence=0.95
+11:43:22 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:22 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:43:27 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(5, 7)
+11:43:27 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 7), phase=normal, skip_llm=False
+11:43:27 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=6)
+11:43:27 | INFO    | gomoku.game_window   | AI 开始思考 (turn=11)
+11:43:27 | INFO    | gomoku.orchestrator  | 开始分析 turn=11, color=O, is_rethink=False
+11:43:27 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:43:27 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:43:27 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:43:27 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:28 | INFO    | gomoku.orchestrator  | 战术官: move=(5, 8), confidence=0.90
+11:43:29 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 8), confidence=0.95
+11:43:29 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:29 | INFO    | gomoku.orchestrator  | 检测到共识: (5, 8), 跳过后续流程
+11:43:29 | INFO    | gomoku.orchestrator  | 共识达成: move=[5, 8], 跳过总策划官
+11:43:29 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 8), phase=normal, skip_llm=False
+11:43:29 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 梅花阵：生成了1颗花苞在(1,0)，将格挡对方1次落子
+11:43:30 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=8)
+11:43:30 | INFO    | gomoku.game_window   | AI 开始思考 (turn=12)
+11:43:30 | INFO    | gomoku.orchestrator  | 开始分析 turn=12, color=X, is_rethink=False
+11:43:30 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:43:30 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:43:30 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:43:30 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:31 | INFO    | gomoku.orchestrator  | 战术官: move=(8, 9), confidence=0.90
+11:43:31 | INFO    | gomoku.orchestrator  | 防守官: move=(8, 9), confidence=0.95
+11:43:31 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:31 | INFO    | gomoku.orchestrator  | 检测到共识: (8, 9), 跳过后续流程
+11:43:31 | INFO    | gomoku.orchestrator  | 共识达成: move=[8, 9], 跳过总策划官
+11:43:31 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 9), phase=normal, skip_llm=False
+11:43:32 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=8, y=9)
+11:43:32 | INFO    | gomoku.game_window   | AI 开始思考 (turn=13)
+11:43:32 | INFO    | gomoku.orchestrator  | 开始分析 turn=13, color=O, is_rethink=False
+11:43:32 | DEBUG   | gomoku.orchestrator  | 局势分级: emergency, skip_llm=True
+11:43:32 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:43:32 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=emergency)
+11:43:32 | INFO    | gomoku.orchestrator  | 分析完成: move=(4, 5), phase=emergency, skip_llm=True
+11:43:32 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=4, y=5)
+11:43:32 | INFO    | gomoku.game_window   | AI 开始思考 (turn=14)
+11:43:32 | INFO    | gomoku.orchestrator  | 开始分析 turn=14, color=X, is_rethink=False
+11:43:32 | DEBUG   | gomoku.orchestrator  | 局势分级: complex, skip_llm=False
+11:43:32 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:43:32 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:43:32 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:33 | INFO    | gomoku.orchestrator  | 战术官: move=(9, 10), confidence=0.90
+11:43:34 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 9), confidence=0.95
+11:43:34 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:34 | DEBUG   | gomoku.orchestrator  | 反对官分析中...
+11:43:44 | INFO    | gomoku.orchestrator  | 反对官: 2条批评
+11:43:44 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:43:50 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(6, 9)
+11:43:50 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 9), phase=complex, skip_llm=False
+11:43:51 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=9)
+11:43:51 | INFO    | gomoku.game_window   | AI 开始思考 (turn=15)
+11:43:51 | INFO    | gomoku.orchestrator  | 开始分析 turn=15, color=O, is_rethink=False
+11:43:51 | DEBUG   | gomoku.orchestrator  | 局势分级: emergency, skip_llm=True
+11:43:51 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:43:51 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=emergency)
+11:43:51 | INFO    | gomoku.orchestrator  | 分析完成: move=(9, 10), phase=emergency, skip_llm=True
+11:43:51 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 梅花阵：生成了1颗花苞在(0,3)，将格挡对方1次落子
+11:43:51 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=10)
+11:43:51 | INFO    | gomoku.game_window   | AI 开始思考 (turn=16)
+11:43:51 | INFO    | gomoku.orchestrator  | 开始分析 turn=16, color=X, is_rethink=False
+11:43:51 | DEBUG   | gomoku.orchestrator  | 局势分级: complex, skip_llm=False
+11:43:51 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:43:51 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:43:51 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:43:52 | INFO    | gomoku.orchestrator  | 战术官: move=(4, 6), confidence=0.90
+11:43:53 | INFO    | gomoku.orchestrator  | 防守官: move=(8, 10), confidence=0.95
+11:43:53 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:43:53 | DEBUG   | gomoku.orchestrator  | 反对官分析中...
+11:44:04 | INFO    | gomoku.orchestrator  | 反对官: 2条批评
+11:44:04 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:44:10 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(6, 5)
+11:44:10 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 5), phase=complex, skip_llm=False
+11:44:10 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=5)
+11:44:10 | INFO    | gomoku.game_window   | AI 开始思考 (turn=17)
+11:44:10 | INFO    | gomoku.orchestrator  | 开始分析 turn=17, color=O, is_rethink=False
+11:44:10 | DEBUG   | gomoku.orchestrator  | 局势分级: emergency, skip_llm=True
+11:44:10 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:44:10 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=emergency)
+11:44:10 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 10), phase=emergency, skip_llm=True
+11:44:10 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=8, y=10)
+11:44:10 | INFO    | gomoku.game_window   | AI 开始思考 (turn=18)
+11:44:10 | INFO    | gomoku.orchestrator  | 开始分析 turn=18, color=X, is_rethink=False
+11:44:10 | DEBUG   | gomoku.orchestrator  | 局势分级: emergency, skip_llm=True
+11:44:10 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:44:10 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=emergency)
+11:44:10 | INFO    | gomoku.orchestrator  | 分析完成: move=(4, 6), phase=emergency, skip_llm=True
+11:44:10 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=4, y=6)
+11:44:11 | INFO    | gomoku.game_window   | AI 开始思考 (turn=19)
+11:44:11 | INFO    | gomoku.orchestrator  | 开始分析 turn=19, color=O, is_rethink=False
+11:44:11 | DEBUG   | gomoku.orchestrator  | 局势分级: emergency, skip_llm=True
+11:44:11 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:44:11 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=emergency)
+11:44:11 | INFO    | gomoku.orchestrator  | 分析完成: move=(9, 11), phase=emergency, skip_llm=True
+11:44:11 | INFO    | gomoku.game_window   | 游戏结束: 白棋获胜！🎉
+11:44:11 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=11)
+11:44:11 | INFO    | gomoku.game_window   | 游戏结束: 白棋获胜！🎉
+11:44:23 | INFO    | gomoku.game_window   | GUI 关闭
+11:54:49 | INFO    | gomoku.game_window   | GUI 初始化完成
+11:54:53 | INFO    | gomoku.game_window   | AI 模式启用, mode=1
+11:55:02 | DEBUG   | gomoku.game_window   | 人类落子: (7,7), turn=1, result=None
+11:55:02 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+11:55:02 | INFO    | gomoku.orchestrator  | 开始分析 turn=1, color=O, is_rethink=False
+11:55:02 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:55:02 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:55:02 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:55:02 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 6), phase=simple, skip_llm=True
+11:55:02 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=6)
+11:55:04 | DEBUG   | gomoku.game_window   | 人类落子: (7,8), turn=3, result=None
+11:55:04 | INFO    | gomoku.game_window   | AI 开始思考 (turn=3)
+11:55:04 | INFO    | gomoku.orchestrator  | 开始分析 turn=3, color=O, is_rethink=False
+11:55:04 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:55:04 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:55:04 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:55:04 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 6), phase=simple, skip_llm=True
+11:55:04 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 梅花阵：生成了1颗花苞在(14,2)，将格挡对方1次落子
+11:55:04 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=6)
+11:55:09 | DEBUG   | gomoku.game_window   | 人类落子: (8,6), turn=5, result=None
+11:55:09 | INFO    | gomoku.game_window   | AI 开始思考 (turn=5)
+11:55:09 | INFO    | gomoku.orchestrator  | 开始分析 turn=5, color=O, is_rethink=False
+11:55:09 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:55:09 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:55:09 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:55:09 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 8), phase=simple, skip_llm=True
+11:55:09 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=8)
+11:55:12 | DEBUG   | gomoku.game_window   | 人类落子: (8,7), turn=7, result=None
+11:55:12 | INFO    | gomoku.game_window   | AI 开始思考 (turn=7)
+11:55:12 | INFO    | gomoku.orchestrator  | 开始分析 turn=7, color=O, is_rethink=False
+11:55:12 | DEBUG   | gomoku.orchestrator  | 局势分级: simple, skip_llm=True
+11:55:12 | DEBUG   | gomoku.orchestrator  | 跳过 LLM，走引擎兜底
+11:55:12 | INFO    | gomoku.orchestrator  | 使用引擎兜底 (phase=simple)
+11:55:12 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 7), phase=simple, skip_llm=True
+11:55:12 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 梅花阵：生成了1颗花苞在(13,10)，将格挡对方1次落子
+11:55:12 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=7)
+11:55:13 | DEBUG   | gomoku.game_window   | 人类落子: (8,8), turn=9, result=None
+11:55:13 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+11:55:13 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, is_rethink=False
+11:55:13 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:55:13 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:55:13 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:55:13 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:55:15 | INFO    | gomoku.orchestrator  | 战术官: move=(6, 9), confidence=0.90
+11:55:15 | INFO    | gomoku.orchestrator  | 防守官: move=(8, 5), confidence=1.00
+11:55:15 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:55:15 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:55:21 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(8, 5)
+11:55:21 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 5), phase=normal, skip_llm=False
+11:55:21 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=8, y=5)
+11:55:25 | DEBUG   | gomoku.game_window   | 人类落子: (9,6), turn=11, result=None
+11:55:25 | INFO    | gomoku.game_window   | AI 开始思考 (turn=11)
+11:55:25 | INFO    | gomoku.orchestrator  | 开始分析 turn=11, color=O, is_rethink=False
+11:55:25 | DEBUG   | gomoku.orchestrator  | 局势分级: normal, skip_llm=False
+11:55:25 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+11:55:25 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+11:55:25 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+11:55:26 | INFO    | gomoku.orchestrator  | 战术官: move=(6, 9), confidence=0.90
+11:55:27 | INFO    | gomoku.orchestrator  | 防守官: move=(8, 9), confidence=1.00
+11:55:27 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+11:55:27 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+11:55:31 | INFO    | gomoku.game_window   | GUI 关闭
