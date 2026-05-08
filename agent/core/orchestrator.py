@@ -41,6 +41,7 @@ from ..agents.chief_strategist import ChiefStrategist
 from ..game_info.extractor import GameInfoExtractor
 from ..memory.sliding_memory import SlidingMemory
 from ..speed.speed_controller import SpeedController
+from ..skill_tools import get_skill_tool
 
 # RAG 模块（可选，首次索引后生效）
 _rag_tools = None
@@ -329,10 +330,30 @@ class MultiAgentOrchestrator:
                     severity=c.get("severity", "minor"),
                 ))
 
-        decision = self._agents["chief"].think(
-            state["game_report"], proposals=proposals, critiques=critiques)
+        # 技能 tool-calling：仅当前玩家持有的主动招式可暴露为 tool
+        ctrl = self._extractor.ctrl
+        player = ctrl.current_player
+        skill_tool = get_skill_tool(player)
+        own_skill = f"{player.skill.skill_name}({player.skill.description})" if player.skill else ""
+
+        if skill_tool:
+            # 分析阶段不实际执行技能（只读），仅记录调用意图
+            def skill_executor(tool_name, arguments):
+                return (f"[技能预览] 将在落子后激活 {player.skill.skill_name}"
+                        f" 参数: {arguments}" if arguments else
+                        f"[技能预览] 将在落子后激活 {player.skill.skill_name}")
+            decision = self._agents["chief"].think_with_skill_tool(
+                state["game_report"], skill_tool, skill_executor,
+                proposals=proposals, critiques=critiques, own_skill=own_skill)
+        else:
+            decision = self._agents["chief"].think(
+                state["game_report"], proposals=proposals,
+                critiques=critiques, own_skill=own_skill)
+
         if decision:
             _log.info(f"总策划官裁决: move={decision.move}")
+            if decision.activate_skill:
+                _log.info(f"AI 决定激活技能: {decision.activate_skill}")
         return {"chief_decision": decision.to_dict() if decision else None}
 
     def _consensus_node(self, state: MultiAgentState) -> dict:

@@ -18,7 +18,7 @@ class LLMClient:
         self._temperature = temperature
 
     def chat(self, system_prompt: str, user_message: str,
-             response_format: str = "text") -> str:
+             response_format: str = "text", max_tokens: int = 256) -> str:
         """单次 LLM 调用"""
         messages = [
             {"role": "system", "content": system_prompt},
@@ -28,6 +28,7 @@ class LLMClient:
             "model": self._model,
             "messages": messages,
             "temperature": self._temperature,
+            "max_tokens": max_tokens,
         }
         if response_format == "json_object":
             kwargs["response_format"] = {"type": "json_object"}
@@ -35,7 +36,7 @@ class LLMClient:
         return response.choices[0].message.content
 
     def chat_with_tools(self, system_prompt: str, user_message: str,
-                         tools: list[dict]) -> dict:
+                         tools: list[dict], max_tokens: int = 512) -> dict:
         """支持 tool-calling 的 LLM 调用
 
         Returns:
@@ -51,6 +52,7 @@ class LLMClient:
             tools=tools,
             tool_choice="auto",
             temperature=self._temperature,
+            max_tokens=max_tokens,
         )
         msg = response.choices[0].message
         result = {"content": msg.content, "tool_calls": None}

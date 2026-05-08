@@ -21,8 +21,7 @@ class TacticalAnalyst(BaseAgent):
         return _PROMPTS.get("tactical")
 
     def build_user_message(self, game_report: str, **context) -> str:
-        return (f"{game_report}\n\n"
-                f"请从进攻和己方技能角度推荐最佳落子，输出JSON。")
+        return f"{game_report}\n\n进攻视角：推荐最佳落子（JSON）。"
 
     def parse_response(self, text: str) -> Proposal:
         try:

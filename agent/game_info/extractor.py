@@ -27,7 +27,7 @@ class GameInfoExtractor:
         return f"回合{self.ctrl.turn_count} #{p.name}({p.color}) vs {opp.name}({opp.color})"
 
     def _occupied_section(self) -> str:
-        """列出已占据和封锁的坐标，供 LLM 直接避开"""
+        """列出已占据和封锁的坐标（紧凑格式），供 LLM 直接避开"""
         board = self.ctrl.board
         black = []
         white = []
@@ -35,23 +35,17 @@ class GameInfoExtractor:
         for y in range(15):
             for x in range(15):
                 if board.is_blocked(x, y):
-                    blocked.append(f"({x},{y})")
+                    blocked.append(f"{x},{y}")
                 elif board.get(x, y) == 'X':
-                    black.append(f"({x},{y})")
+                    black.append(f"{x},{y}")
                 elif board.get(x, y) == 'O':
-                    white.append(f"({x},{y})")
+                    white.append(f"{x},{y}")
         parts = []
-        if black:
-            parts.append(f"X已占: {','.join(black)}")
-        else:
-            parts.append("X已占: 无")
-        if white:
-            parts.append(f"O已占: {','.join(white)}")
-        else:
-            parts.append("O已占: 无")
+        parts.append(f"X:{' '.join(black)}" if black else "X:无")
+        parts.append(f"O:{' '.join(white)}" if white else "O:无")
         if blocked:
-            parts.append(f"封锁*: {','.join(blocked)}")
-        return "\n".join(parts)
+            parts.append(f"*:{' '.join(blocked)}")
+        return " ".join(parts)
 
     def _board_section(self) -> str:
         blocked = {(p.x, p.y) for p in self.ctrl.board.get_blocked_positions()}
@@ -62,7 +56,7 @@ class GameInfoExtractor:
         skill = self.ctrl.current_player.skill
         if not skill:
             return ""
-        return f"己方招式: {skill.skill_name}({skill.description})"
+        return f"己方: {skill.skill_name}({skill.description})"
 
     def get_rag_context(self) -> str:
         """获取 RAG 棋谱参考上下文（由 orchestrator 调用）"""
@@ -80,9 +74,4 @@ class GameInfoExtractor:
         skill = self.ctrl.opponent_player.skill
         if not skill:
             return ""
-        blocked = [f"({x},{y})" for y in range(15) for x in range(15)
-                   if self.ctrl.board.is_blocked(x, y)]
-        info = f"敌方招式: {skill.skill_name}({skill.description})"
-        if blocked:
-            info += f" 封锁位: {','.join(blocked)}"
-        return info
+        return f"敌方: {skill.skill_name}({skill.description})"

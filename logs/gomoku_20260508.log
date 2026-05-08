@@ -1228,3 +1228,88 @@
 20:30:15 | INFO    | gomoku.orchestrator  | 共识达成: move=[6, 8], 跳过总策划官
 20:30:15 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 8), phase=normal
 20:30:16 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=8)
+20:30:25 | DEBUG   | gomoku.game_window   | 人类落子: (14,0), turn=13, result=None
+20:30:25 | INFO    | gomoku.game_window   | AI 开始思考 (turn=13)
+20:30:25 | INFO    | gomoku.orchestrator  | 开始分析 turn=13, color=O, attempt=1
+20:30:25 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+20:30:25 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+20:30:25 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+20:30:25 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+20:31:10 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 6), confidence=0.95
+20:31:12 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 7), confidence=0.98
+20:31:12 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+20:31:12 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+20:31:19 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(7, 8)
+20:31:19 | INFO    | gomoku.orchestrator  | 分析完成: move=(7, 8), phase=normal
+20:31:19 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=8)
+20:31:30 | DEBUG   | gomoku.game_window   | 人类落子: (14,14), turn=15, result=None
+20:31:30 | INFO    | gomoku.game_window   | AI 开始思考 (turn=15)
+20:31:30 | INFO    | gomoku.orchestrator  | 开始分析 turn=15, color=O, attempt=1
+20:31:30 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+20:31:30 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+20:31:30 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+20:31:30 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+20:31:46 | INFO    | gomoku.orchestrator  | 战术官: move=(5, 7), confidence=0.98
+20:31:55 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 7), confidence=1.00
+20:31:55 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+20:31:55 | INFO    | gomoku.orchestrator  | 检测到共识: (5, 7), 跳过后续流程
+20:31:55 | INFO    | gomoku.orchestrator  | 共识达成: move=[5, 7], 跳过总策划官
+20:31:55 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 7), phase=normal
+20:31:55 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=7)
+20:32:33 | DEBUG   | gomoku.game_window   | 人类落子: (13,5), turn=17, result=None
+20:32:34 | INFO    | gomoku.game_window   | AI 开始思考 (turn=17)
+20:32:34 | INFO    | gomoku.orchestrator  | 开始分析 turn=17, color=O, attempt=1
+20:32:34 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+20:32:34 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+20:32:34 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+20:32:34 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+20:32:58 | INFO    | gomoku.orchestrator  | 防守官: move=(8, 9), confidence=0.96
+20:33:13 | INFO    | gomoku.orchestrator  | 战术官: move=(5, 6), confidence=0.92
+20:33:13 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+20:33:13 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+20:33:23 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(5, 6)
+20:33:23 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 6), phase=normal
+20:33:23 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=6)
+20:34:07 | DEBUG   | gomoku.game_window   | 人类落子: (13,12), turn=19, result=None
+20:34:07 | INFO    | gomoku.game_window   | AI 开始思考 (turn=19)
+20:34:07 | INFO    | gomoku.orchestrator  | 开始分析 turn=19, color=O, attempt=1
+20:34:07 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+20:34:07 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+20:34:07 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+20:34:07 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+20:34:28 | INFO    | gomoku.orchestrator  | 战术官: move=(6, 6), confidence=0.95
+20:34:29 | INFO    | gomoku.orchestrator  | 防守官: move=(4, 7), confidence=1.00
+20:34:29 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+20:34:29 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+20:34:34 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(4, 7)
+20:34:34 | INFO    | gomoku.orchestrator  | 分析完成: move=(4, 7), phase=normal
+20:34:34 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=4, y=7)
+20:35:50 | DEBUG   | gomoku.game_window   | 人类落子: (0,3), turn=21, result=None
+20:35:51 | INFO    | gomoku.game_window   | AI 开始思考 (turn=21)
+20:35:51 | INFO    | gomoku.orchestrator  | 开始分析 turn=21, color=O, attempt=1
+20:35:51 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+20:35:51 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+20:35:51 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+20:35:51 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+20:36:15 | INFO    | gomoku.orchestrator  | 防守官: move=(6, 6), confidence=0.98
+20:36:34 | INFO    | gomoku.orchestrator  | 战术官: move=(6, 6), confidence=0.92
+20:36:34 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+20:36:34 | INFO    | gomoku.orchestrator  | 检测到共识: (6, 6), 跳过后续流程
+20:36:34 | INFO    | gomoku.orchestrator  | 共识达成: move=[6, 6], 跳过总策划官
+20:36:34 | INFO    | gomoku.orchestrator  | 分析完成: move=(6, 6), phase=normal
+20:36:35 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=6)
+20:37:39 | DEBUG   | gomoku.game_window   | 人类落子: (0,14), turn=23, result=None
+20:37:39 | INFO    | gomoku.game_window   | AI 开始思考 (turn=23)
+20:37:39 | INFO    | gomoku.orchestrator  | 开始分析 turn=23, color=O, attempt=1
+20:37:39 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+20:37:39 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+20:37:39 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+20:37:39 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+20:38:00 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 10), confidence=0.98
+20:38:43 | INFO    | gomoku.orchestrator  | 战术官: move=(7, 6), confidence=1.00
+20:38:43 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+20:38:43 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+20:38:56 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(4, 6)
+20:38:56 | INFO    | gomoku.orchestrator  | 分析完成: move=(4, 6), phase=normal
+20:38:56 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=4, y=6)
+20:39:02 | INFO    | gomoku.game_window   | GUI 关闭

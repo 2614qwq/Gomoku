@@ -42,10 +42,14 @@ class FinalDecision:
     move: tuple[int, int]
     reason: str
     agent_summaries: dict = field(default_factory=dict)
+    activate_skill: dict = None  # {"name": str, "args": dict} | None
 
     def to_dict(self) -> dict:
-        return {
+        d = {
             "move": list(self.move),
             "reason": self.reason,
             "agent_summaries": self.agent_summaries,
         }
+        if self.activate_skill:
+            d["activate_skill"] = self.activate_skill
+        return d

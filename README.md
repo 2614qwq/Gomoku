@@ -94,7 +94,7 @@ GameController ──→ GameInfoExtractor ──→ MultiAgentOrchestrator (Lan
                     │                          │                          │
               ┌─────▼─────┐            ┌──────▼──────┐           ┌──────▼──────┐
               │  战术官    │            │   防守官     │           │  反对官      │
-              │ (qwen-turbo)│           │ (qwen-turbo) │           │ (qwen-plus) │
+              │ (qwen-plus) │           │ (qwen-plus) │           │ (qwen-plus) │
               │  进攻分析   │            │   防守分析    │           │  压力测试    │
               └─────┬─────┘            └──────┬──────┘           └──────┬──────┘
                     │                          │                          │
@@ -103,6 +103,8 @@ GameController ──→ GameInfoExtractor ──→ MultiAgentOrchestrator (Lan
                                         ┌──────▼──────┐
                                         │  总策划官    │
                                         │ (qwen-plus) │
+                                        │ 汇总裁决    │
+                                        │ +技能toolcall│
                                         │  汇总裁决    │
                                         └──────┬──────┘
                                                │
@@ -168,6 +170,7 @@ START → phase_check
 │   ├── board_codec.py           # 棋盘 ↔ 文本 编解码
 │   ├── llm_client.py            # DashScope LLM 调用客户端
 │   ├── logger.py                # 日志系统（文件 + 控制台）
+│   ├── skill_tools.py           # 技能 → OpenAI tool-calling 适配
 │   ├── core/
 │   │   ├── orchestrator.py      # LangGraph StateGraph 编排器（Send fan-out）
 │   │   ├── state.py             # MultiAgentState 图状态定义
@@ -177,22 +180,21 @@ START → phase_check
 │   │   ├── tactical_analyst.py  # 战术官（进攻分析）
 │   │   ├── defense_specialist.py# 防守官（防守分析）
 │   │   ├── devil_advocate.py    # 反对官（压力测试）
-│   │   └── chief_strategist.py  # 总策划官（最终裁决）
+│   │   └── chief_strategist.py  # 总策划官（最终裁决 + 技能 tool-calling）
 │   ├── game_info/
-│   │   └── extractor.py         # 游戏信息提取器（生成 game_report）
+│   │   └── extractor.py         # 游戏信息提取器（生成 game_report，紧凑格式）
 │   ├── memory/
 │   │   └── sliding_memory.py    # 双层滑动窗口记忆
 │   ├── speed/
 │   │   └── speed_controller.py  # 局势分级 + 超时控制
-│   └── prompts/                 # 角色提示词模板
+│   └── prompts/                 # 角色提示词模板（已精简）
 │       ├── tactical.txt
 │       ├── defense.txt
 │       ├── devil_advocate.txt
 │       └── chief.txt
 │
+├── 五子棋获胜常见条件.txt         # 必胜定式与攻防策略参考文档
 ├── 万宁五子棋招式.md             # 招式设计文档
-├── AI_vs_AI性能分析.md           # 性能瓶颈分析
-└── AI_vs_AI性能修复报告.md       # 性能修复报告
 ```
 
 ---
@@ -220,6 +222,15 @@ Python 标准库：`tkinter`, `abc`, `dataclasses`, `enum`, `typing`, `collectio
 ---
 
 ## 版本历史
+
+### v0.5.0 (2026-05-08)
+
+- 新增：**技能 tool-calling** —— AI 总策划官可在决策时通过 function calling 激活己方主动招式（万宁阵法/血狱影杀阵/四方阵），仅随机分配到的招式可调用
+- 新增：**五子棋获胜常见条件文档**（`五子棋获胜常见条件.txt`）—— 涵盖五连、活四、四三杀、双活三、四四杀、VCF/VCT 等必胜定式
+- 优化：战术官 prompt 重写，聚焦活二→活三→四三杀/双活三→五连的渐进式进攻路线
+- 优化：防守官 prompt 重写，强化从活二源头阻断、抢占交叉点的防守策略
+- 优化：反对官 prompt 重写，增加 VCF/斜线盲区检查项
+- 优化：**Token 用量削减** —— LLM 调用增加 max_tokens 限制（256/512），game_report 紧凑化坐标格式，prompt 精简冗余描述
 
 ### v0.4.2 (2026-05-08)
 

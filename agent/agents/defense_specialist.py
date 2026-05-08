@@ -20,8 +20,7 @@ class DefenseSpecialist(BaseAgent):
         return _PROMPTS.get("defense")
 
     def build_user_message(self, game_report: str, **context) -> str:
-        return (f"{game_report}\n\n"
-                f"请从防守和敌方技能角度推荐最佳落子，输出JSON。")
+        return f"{game_report}\n\n防守视角：推荐最佳落子（JSON）。"
 
     def parse_response(self, text: str) -> Proposal:
         try:

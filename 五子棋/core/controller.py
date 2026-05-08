@@ -13,6 +13,9 @@ import random
 
 from .constants import BLACK, WHITE, EMPTY
 from .models import Board, Player, Position, SkillResult
+from agent.logger import get_logger
+
+_log = get_logger("controller")
 from ..skills import Skill, SkillType, random_skill, WanningFormation
 
 
@@ -130,7 +133,49 @@ class GameController:
         }
 
         result = self.handle_click(x, y)
+
+        # AI 决定激活技能（通过 tool-calling）
+        if decision.activate_skill and result is None:
+            skill_result = self._execute_ai_skill(decision.activate_skill)
+            if skill_result:
+                analysis["skill_result"] = skill_result
+
         return {"result": result, "analysis": analysis}
+
+    def _execute_ai_skill(self, activate: dict) -> Optional[str]:
+        """执行 AI 决定的技能激活
+
+        Args:
+            activate: {"name": "activate_skill", "args": {"x": 7, "y": 8} | {}}
+
+        Returns:
+            技能执行结果消息或 None
+        """
+        player = self.current_player
+        skill = player.skill
+        if skill is None or skill.skill_type != SkillType.ACTIVE:
+            return None
+        if not skill.can_activate(player, self.board, self._turn_count):
+            return None
+
+        from 五子棋.core.models import Position
+        args = activate.get("args", {})
+        target = None
+        if "x" in args and "y" in args:
+            target = Position(args["x"], args["y"])
+
+        result = skill.activate(
+            player, self.opponent_player, self.board,
+            self._turn_count, target=target)
+
+        if result and result.message:
+            _log.info(f"AI 技能执行: {result.message}")
+
+        # 触发对手被动反应
+        self._trigger_reactions_to_skill()
+
+        self._notify_state_changed()
+        return result.message if result else None
 
     def handle_human_question(self, question: str) -> dict:
         """处理人类反问，返回 AI 的重新分析结果"""
