@@ -1,0 +1,23 @@
+# ==================== 五子棋多智能体协作系统 依赖清单 ====================
+# 安装: pip install -r requirements.txt
+
+# --- LangGraph 多智能体框架 ---
+# StateGraph: 构建 State → Nodes → Edges 图结构
+# State (TypedDict): 在 Node 之间流转的共享状态
+# Nodes: 处理步骤（Python 函数，签名为 State → dict）
+# Edges: 普通边 + 条件边（route_by_phase）
+# MemorySaver: 内置 checkpointer，持久化图状态
+langgraph>=0.2.0
+
+# --- LangChain 核心类型 ---
+# BaseMessage / HumanMessage / AIMessage: 对话消息类型
+# add_messages: Annotated reducer，追加消息而非覆盖
+# 被 langgraph 依赖，显式声明以确保版本兼容
+langchain-core>=0.3.0
+
+# --- LLM API 调用 ---
+# 阿里云百炼 DashScope 兼容接口
+# 调用方式: client.chat.completions.create(model, messages, temperature)
+# base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+# 认证: 环境变量 DASHSCOPE_API_KEY
+openai>=1.0.0
