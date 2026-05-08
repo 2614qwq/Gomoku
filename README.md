@@ -2,7 +2,7 @@
 
 > **本项目完全由 Claude Code + DeepSeek V4 Pro 开发。**
 
-基于 tkinter 的五子棋游戏，集成万宁五子棋招式系统（10 种技能）与基于 **LangGraph** 的多智能体 AI 系统。支持双人对战、人机对战、AI vs AI 观战模式，AI 可辅助人类决策。
+基于 tkinter 的五子棋游戏，集成万宁五子棋招式系统（10 种技能）、**传统算法引擎**（棋型检测 + Minimax/Alpha-Beta 搜索）与基于 **LangGraph** 的多智能体 LLM 系统。支持双人对战、人机对战、AI vs AI 观战模式，AI 可辅助人类决策。
 
 ---
 
@@ -88,41 +88,74 @@ API Key 获取：https://bailian.console.aliyun.com → API Key 管理
 ### 整体架构
 
 ```
-GameController ──→ GameInfoExtractor ──→ MultiAgentOrchestrator (LangGraph)
-                                              │
-                    ┌──────────────────────────┼──────────────────────────┐
-                    │                          │                          │
-              ┌─────▼─────┐            ┌──────▼──────┐           ┌──────▼──────┐
-              │  战术官    │            │   防守官     │           │  反对官      │
-              │ (qwen-plus) │           │ (qwen-plus) │           │ (qwen-plus) │
-              │  进攻分析   │            │   防守分析    │           │  压力测试    │
-              └─────┬─────┘            └──────┬──────┘           └──────┬──────┘
-                    │                          │                          │
-                    └──────────────────────────┼──────────────────────────┘
-                                               │
-                                        ┌──────▼──────┐
-                                        │  总策划官    │
-                                        │ (qwen-plus) │
-                                        │ 汇总裁决    │
-                                        │ +技能toolcall│
-                                        │  汇总裁决    │
-                                        └──────┬──────┘
-                                               │
-                                        最终落子 (x, y)
+GameController ──→ 算法预检（必胜/必堵/双重威胁）
+       │                │ 强制落子 → 直接返回，跳过 LLM
+       │                │ 无强制落子 ↓
+       │         GameInfoExtractor ──→ MultiAgentOrchestrator (LangGraph)
+       │                                      │
+       │         ┌────────────────────────────┼──────────────────────────┐
+       │         │                            │                          │
+       │   ┌─────▼─────┐              ┌──────▼──────┐           ┌──────▼──────┐
+       │   │  战术官    │              │   防守官     │           │  反对官      │
+       │   │ (qwen-plus)│              │ (qwen-plus) │           │ (qwen-plus) │
+       │   │  进攻分析   │              │   防守分析    │           │  压力测试    │
+       │   └─────┬─────┘              └──────┬──────┘           └──────┬──────┘
+       │         │                            │                          │
+       │         └────────────────────────────┼──────────────────────────┘
+       │                                      │
+       │                               ┌──────▼──────┐
+       │                               │  总策划官    │
+       │                               │ (qwen-plus) │
+       │                               │ 汇总裁决    │
+       │                               │ +技能toolcall│
+       │                               └──────┬──────┘
+       │                                      │
+       │                               最终落子 (x, y)
+       │
+       └── 算法模块（agent/algorithm/）
+           ├── pattern.py   棋型检测（活四/冲四/活三/冲三/五连）
+           ├── evaluate.py  局面评估（权重打分）
+           └── search.py    Minimax + Alpha-Beta 搜索
 ```
 
-### LangGraph 图流程（优化版）
+### 决策流程
 
 ```
-START → phase_check
-         ├─ simple/emergency → engine_fallback → END     (跳过 LLM，引擎直出)
-         └─ normal/complex  → Send("tactical") ║ Send("defense")   (并行)
-                                    ↓                    ↓
-                               post_analysis ← post_analysis        (join 屏障)
-                                          ↓
-                              ┌─ 共识 → consensus → END    (跳过 chief)
-                              ├─ complex → devil → chief → END
-                              └─ normal → chief → END
+analyze() 入口
+  │
+  ├─ 算法预检（_algorithm_precheck）
+  │    ├─ 己方必胜点 → 直接落子，返回（0 次 LLM）
+  │    ├─ 对手必胜点 → 强制封堵，返回（0 次 LLM）
+  │    └─ 己方双重威胁 → 直接进攻，返回（0 次 LLM）
+  │
+  ├─ 快速开局通道（turn 1-4）
+  │    ├─ turn=1 → 硬编码天元 (7,7)
+  │    └─ turn=2-4 → 单次 LLM 快速决策
+  │
+  └─ 完整多智能体流水线（turn ≥ 5）
+       │
+       START → phase_check
+                └─ Send("tactical") ║ Send("defense")   (LangGraph 并行)
+                              ↓                    ↓
+                         post_analysis ← post_analysis   (join 屏障)
+                                    ↓
+                        ┌─ 共识 → consensus → END
+                        ├─ complex → devil → chief → END
+                        └─ normal → chief → END
+       │
+       └─ 重试耗尽 → 算法搜索兜底（Minimax depth=2）
+```
+
+### LangGraph 图结构
+
+```
+START → phase_check → [Send(tactical) || Send(defense)]
+                           ↓                    ↓
+                      post_analysis ←── post_analysis
+                           ↓
+                 ┌─ 共识(同坐标+置信度>0.8) → consensus → END
+                 ├─ complex → devil_advocate → chief → END
+                 └─ normal → chief → END
 ```
 
 ### 四个智能体
@@ -138,12 +171,14 @@ START → phase_check
 
 | 优化项 | 说明 |
 |--------|------|
+| **算法预检短路** | 必胜/必堵/双重威胁直接由算法处理，0 次 LLM 调用，响应 < 1ms |
 | **LangGraph Send fan-out** | tactical 和 defense 通过 LangGraph 原生 `Send` API 并行执行 |
-| **局势分级跳过 LLM** | simple（无威胁）和 emergency（对手四连）直接使用引擎，0 次 LLM 调用 |
 | **共识短路** | tactical 和 defense 建议相同落子且置信度 > 0.8 时，跳过 chief |
+| **算法威胁增强** | game_report 注入棋型分析（活四/冲四/活三等），提升 LLM 决策准确率 |
 | **后台线程** | LLM 调用在后台线程执行，主线程不阻塞，UI 全程流畅 |
-| **引擎候选预过滤** | 每步计算 Top-8 候选格提供给 LLM 作为参考 |
-| **滑动窗口记忆** | 短时记忆（10 步）+ 长时记忆（5 事件），控制在 500 字符内 |
+| **算法搜索兜底** | LLM 重试耗尽后使用 Minimax + Alpha-Beta 搜索，替代随机落子 |
+| **滑动窗口记忆** | 短时记忆（2 步）+ 关键事件（2 条），控制在 500 字符内 |
+| **候选剪枝** | 搜索仅限已有棋子周围 2 格空位，大幅缩小分支因子 |
 
 ---
 
@@ -166,13 +201,16 @@ START → phase_check
 │       └── skill_window.py      # 单玩家招式面板（技能 + AI提示按钮）
 │
 ├── agent/                       # AI 多智能体系统
-│   ├── engine.py                # 启发式评分引擎（兜底策略）
 │   ├── board_codec.py           # 棋盘 ↔ 文本 编解码
 │   ├── llm_client.py            # DashScope LLM 调用客户端
 │   ├── logger.py                # 日志系统（文件 + 控制台）
 │   ├── skill_tools.py           # 技能 → OpenAI tool-calling 适配
+│   ├── algorithm/               # 传统算法引擎
+│   │   ├── pattern.py           # 棋型检测（活四/冲四/活三/冲三/五连）
+│   │   ├── evaluate.py          # 局面评估（权重打分）
+│   │   └── search.py            # Minimax + Alpha-Beta 搜索
 │   ├── core/
-│   │   ├── orchestrator.py      # LangGraph StateGraph 编排器（Send fan-out）
+│   │   ├── orchestrator.py      # LangGraph StateGraph 编排器（Send fan-out + 算法预检）
 │   │   ├── state.py             # MultiAgentState 图状态定义
 │   │   └── protocol.py          # Proposal / Critique / FinalDecision 协议
 │   ├── agents/
@@ -182,12 +220,12 @@ START → phase_check
 │   │   ├── devil_advocate.py    # 反对官（压力测试）
 │   │   └── chief_strategist.py  # 总策划官（最终裁决 + 技能 tool-calling）
 │   ├── game_info/
-│   │   └── extractor.py         # 游戏信息提取器（生成 game_report，紧凑格式）
+│   │   └── extractor.py         # 游戏信息提取器（含算法威胁分析）
 │   ├── memory/
 │   │   └── sliding_memory.py    # 双层滑动窗口记忆
 │   ├── speed/
 │   │   └── speed_controller.py  # 局势分级 + 超时控制
-│   └── prompts/                 # 角色提示词模板（已精简）
+│   └── prompts/                 # 角色提示词模板
 │       ├── tactical.txt
 │       ├── defense.txt
 │       ├── devil_advocate.txt
@@ -222,6 +260,14 @@ Python 标准库：`tkinter`, `abc`, `dataclasses`, `enum`, `typing`, `collectio
 ---
 
 ## 版本历史
+
+### v0.6.0 (2026-05-08)
+
+- 新增：**传统算法引擎**（`agent/algorithm/`）—— 棋型检测 + 局面评估 + Minimax/Alpha-Beta 搜索
+- 新增：**算法预检短路** —— 在 LLM 流水线之前检测必胜点、必堵点、双重威胁，命中则直接落子（0 次 LLM 调用）
+- 新增：**game_report 算法威胁分析** —— 为 LLM 智能体注入精确的棋型分析（活四/冲四/活三位置），提升决策准确率
+- 优化：LLM 重试兜底由随机空位改为 Minimax + Alpha-Beta 搜索
+- 参考：基于 `优化策略.txt` 中的规则转算法设计实现
 
 ### v0.5.0 (2026-05-08)
 

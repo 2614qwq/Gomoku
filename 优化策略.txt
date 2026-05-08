@@ -1,0 +1,111 @@
+🔑 一、规则转算法的核心逻辑
+你的规则可以严格映射为以下判定流程（以落子点 (r,c) 为中心）：
+
+四个方向：水平 (0,1)、垂直 (1,0)、主对角 (1,1)、副对角 (1,-1)
+双向计数：沿正负方向统计连续同色子，遇到边界、对方子、空位立即停止（符合“不越界、不跨子、不跨空位”）
+端点状态：记录正/负方向第一个非己方格子是“空位”还是“被堵（边界/对方）”
+模式映射：
+连续子总数	两端空位数	对应棋型
+5	≥1	成五（必胜）
+4	2	活四
+4	1	冲四（眠四）
+3	2	活三
+3	1	冲三（眠三）
+📌 注：两端空位数为 0 时称为“死三/死四”，无威胁，通常不计分。
+
+💻 二、Python 核心实现代码
+def extract_patterns(board, r, c, player, rows=15, cols=15):
+    """
+    提取 (r,c) 落子后产生的棋型数量
+    board: 二维数组, 0=空, 1=黑, 2=白
+    player: 当前落子方 (1 或 2)
+    返回: dict 记录各棋型数量
+    """
+    patterns = {"live4": 0, "rush4": 0, "live3": 0, "rush3": 0, "win": 0}
+    directions = [(0, 1), (1, 0), (1, 1), (1, -1)]  # 横、竖、主对角、副对角
+
+    for dr, dc in directions:
+        # 1. 正向计数
+        count_pos = 0
+        r1, c1 = r + dr, c + dc
+        while 0 <= r1 < rows and 0 <= c1 < cols and board[r1][c1] == player:
+            count_pos += 1
+            r1 += dr; c1 += dc
+        pos_blocked = not (0 <= r1 < rows and 0 <= c1 < cols and board[r1][c1] == 0)
+
+        # 2. 反向计数
+        count_neg = 0
+        r2, c2 = r - dr, c - dc
+        while 0 <= r2 < rows and 0 <= c2 < cols and board[r2][c2] == player:
+            count_neg += 1
+            r2 -= dr; c2 -= dc
+        neg_blocked = not (0 <= r2 < rows and 0 <= c2 < cols and board[r2][c2] == 0)
+
+        total = count_pos + count_neg + 1  # +1 包含中心子
+
+        # 3. 棋型判定
+        if total >= 5:
+            patterns["win"] += 1
+        elif total == 4:
+            empty_ends = (0 if pos_blocked else 1) + (0 if neg_blocked else 1)
+            if empty_ends == 2: patterns["live4"] += 1
+            elif empty_ends == 1: patterns["rush4"] += 1
+        elif total == 3:
+            empty_ends = (0 if pos_blocked else 1) + (0 if neg_blocked else 1)
+            if empty_ends == 2: patterns["live3"] += 1
+            elif empty_ends == 1: patterns["rush3"] += 1
+
+    return patterns
+🧠 三、如何让 AI 基于这些规则做决策
+AI 的决策依赖 评估函数 + 搜索算法。步骤如下：
+
+1. 设计评估函数（将棋型转为分数）
+def evaluate_point(patterns, is_my_turn=True):
+    # 基础权重（可根据实际强度微调）
+    weights = {
+        "win":   1000000,
+        "live4": 50000,
+        "rush4": 10000,
+        "live3":  5000,
+        "rush3":   500
+    }
+
+    score = 0
+    for p, w in weights.items():
+        score += patterns[p] * w
+
+    # 防守逻辑：对手成势时，同等分数取反（AI 会优先拦截）
+    if not is_my_turn:
+        score = -score * 0.9  # 0.9 表示防守略逊于进攻，符合人类直觉
+
+    return score
+2. 嵌入搜索算法（推荐 Minimax + Alpha-Beta）
+def get_best_move(board, ai_player, depth=3):
+    best_score = -float('inf')
+    best_move = None
+
+    # 只搜索已有棋子周围的空位（大幅剪枝）
+    candidates = get_nearby_empties(board, radius=2)
+
+    for r, c in candidates:
+        board[r][c] = ai_player
+        # 先检查是否直接获胜
+        if extract_patterns(board, r, c, ai_player)["win"] > 0:
+            board[r][c] = 0
+            return r, c
+
+        # 递归评估（简化版，实际需完整 minimax）
+        score = minimax(board, depth-1, False, ai_player, -float('inf'), float('inf'))
+        board[r][c] = 0  # 回溯
+
+        if score > best_score:
+            best_score = score
+            best_move = (r, c)
+
+    return best_move
+💡 完整 Minimax 代码较长，若需要可提供标准实现。核心思想是：AI 模拟双方轮流落子，用 evaluate_point() 给叶子节点打分，回溯选择最优分支。
+
+⚠️ 四、关键注意事项（避免踩坑）
+边界即阻挡：棋盘边缘视为“被堵”，符合你“两端空位”的定义。
+双棋型叠加：一子可能同时形成 活三+冲三 或 双活四。你的计数逻辑已天然支持多方向累加，无需额外处理。
+

@@ -29,5 +29,8 @@ class MultiAgentState(TypedDict, total=False):
     # ---- 速度控制 ----
     phase: str                      # "emergency" / "simple" / "normal" / "complex"
 
+    # ---- 算法分析 ----
+    algorithm_analysis: str         # 算法检测到的威胁分析文本
+
     # ---- 内部：并行fan-out后join计数 ----
     _join_counter: int

@@ -2,7 +2,7 @@
 
   - phase_check → [Send("tactical") || Send("defense")]  — LangGraph 原生 fan-out
   - post_analysis 作为 join 节点，汇总并行结果
-  - 全流程由 AI 决策（无引擎兜底）
+  - 全流程由 AI 决策 + 算法预检兜底（强制必胜/必堵）
   - tactical 与 defense 共识时跳过 chief
 """
 from __future__ import annotations
@@ -19,6 +19,12 @@ from .protocol import FinalDecision, Proposal, Critique
 from ..logger import get_logger
 
 _log = get_logger("orchestrator")
+
+# 算法模块
+from ..algorithm import (
+    find_immediate_win, find_must_block, scan_threats,
+    find_double_threat_moves, find_existing_live3_blocks, get_best_move,
+)
 
 
 def _explain_invalid(x: int, y: int, board) -> str:
@@ -145,6 +151,71 @@ class MultiAgentOrchestrator:
             return (pos.x, pos.y)
         return (7, 7)
 
+    # ==================== 算法预检 ====================
+
+    def _algorithm_precheck(self, controller) -> Optional[FinalDecision]:
+        """在 LLM 流水线之前进行算法级检查。
+
+        若发现强制落子（必胜或必堵），直接返回决策，跳过 LLM 分析。
+        若发现严重威胁，返回警告信息但不跳过 LLM。
+
+        Returns:
+            FinalDecision —— 强制落子决策（跳过 LLM）
+            None —— 无强制落子，继续走 LLM 流水线
+        """
+        grid = controller.board.grid
+        blocked = {(p.x, p.y) for p in controller.board.get_blocked_positions()}
+        current = controller.current_player.color
+        opponent = controller.opponent_player.color
+
+        # 1. 己方必胜点 —— 直接落子
+        own_win = find_immediate_win(grid, current, blocked)
+        if own_win:
+            _log.info(f"算法预检: 己方必胜点 {own_win}，跳过 LLM")
+            return FinalDecision(
+                move=own_win,
+                reason=f"算法检测：己方在 {own_win} 落子即五连获胜",
+                agent_summaries={"algorithm": "immediate_win"},
+            )
+
+        # 2. 对手必胜点 —— 必须封堵
+        opp_win = find_must_block(grid, opponent, blocked)
+        if opp_win:
+            _log.info(f"算法预检: 必须封堵 {opp_win}，跳过 LLM")
+            return FinalDecision(
+                move=opp_win,
+                reason=f"算法检测：对手在 {opp_win} 落子即五连，必须封堵",
+                agent_summaries={"algorithm": "must_block"},
+            )
+
+        # 3. 己方双重威胁 —— 也是必胜（优先于封堵对手活三）
+        own_double = find_double_threat_moves(grid, current, blocked)
+        if own_double:
+            from ..algorithm import score_position
+            best = max(own_double, key=lambda m: score_position(
+                grid, m[0], m[1], current, blocked))
+            _log.info(f"算法预检: 己方双重威胁 {best}，跳过 LLM")
+            return FinalDecision(
+                move=best,
+                reason=f"算法检测：己方在 {best} 形成双重威胁（双活三/活三+冲四），对手无法同时防守",
+                agent_summaries={"algorithm": "double_threat"},
+            )
+
+        # 4. 对手已有活三 —— 必须封堵一端，否则下一步变活四
+        opp_live3_blocks = find_existing_live3_blocks(grid, opponent, blocked)
+        if opp_live3_blocks:
+            from ..algorithm import score_position
+            best = max(opp_live3_blocks, key=lambda m: score_position(
+                grid, m[0], m[1], current, blocked))
+            _log.info(f"算法预检: 封堵对手活三 {best}，跳过 LLM")
+            return FinalDecision(
+                move=best,
+                reason=f"算法检测：对手已有活三（三子连线+两端空），必须在 {best} 封堵，否则对手下一步活四必胜",
+                agent_summaries={"algorithm": "block_live3"},
+            )
+
+        return None
+
     # ==================== 对外接口 ====================
 
     def analyze(self, controller, human_question: str = "") -> FinalDecision:
@@ -155,6 +226,11 @@ class MultiAgentOrchestrator:
         """
         self._extractor = GameInfoExtractor(controller)
         base_report = self._extractor.build_game_report()
+
+        # 算法预检：强制落子（必胜/必堵）直接返回，跳过 LLM
+        precheck = self._algorithm_precheck(controller)
+        if precheck is not None:
+            return precheck
 
         # 快速开局通道：第1步硬编码，第2-4步单次LLM
         if controller.turn_count <= 4:
@@ -215,6 +291,7 @@ class MultiAgentOrchestrator:
                 "is_rethinking": bool(human_question),
                 "phase": "normal",
                 "_join_counter": 0,
+                "algorithm_analysis": "",
             }
             result = self._graph.invoke(
                 initial_state,
@@ -234,15 +311,28 @@ class MultiAgentOrchestrator:
             warning = (f"\n\n!!! 警告（第{attempt + 1}次）: 你上次选的 ({x},{y}) {reason}。"
                        f"请仔细看棋盘，只能选 . 空位。禁止选 X/O/* 格。")
 
-        # 全部重试失败：随机空位兜底
+        # 全部重试失败：算法搜索兜底
+        _log.warning("重试耗尽，启用算法搜索兜底")
+        grid = controller.board.grid
+        blocked = {(p.x, p.y) for p in controller.board.get_blocked_positions()}
+        current = controller.current_player.color
+        algo_move = get_best_move(grid, current, blocked, depth=2, time_limit=0.5)
+        if algo_move:
+            _log.warning(f"算法搜索兜底: {algo_move}")
+            return FinalDecision(
+                move=algo_move,
+                reason="警告机制：AI 3次均返回非法位置，算法搜索兜底",
+                agent_summaries={"algorithm": "fallback_search"},
+            )
+        # 最后手段：随机空位
         import random
         empty = controller.board.get_empty_positions()
         if empty:
             fallback = random.choice(empty)
-            _log.warning(f"重试耗尽，随机兜底: {fallback}")
+            _log.warning(f"算法搜索无结果，随机兜底: {fallback}")
             return FinalDecision(
                 move=(fallback.x, fallback.y),
-                reason="警告机制：AI 3次均返回非法位置，随机选取空位兜底",
+                reason="算法搜索无结果，随机选取空位兜底",
                 agent_summaries={},
             )
         return FinalDecision(

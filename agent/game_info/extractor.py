@@ -14,6 +14,7 @@ class GameInfoExtractor:
             self._turn_section(),
             self._occupied_section(),
             self._board_section(),
+            self._algorithm_section(),
             self._own_skill_section(),
             self._enemy_skill_section(),
         ]
@@ -51,6 +52,79 @@ class GameInfoExtractor:
         blocked = {(p.x, p.y) for p in self.ctrl.board.get_blocked_positions()}
         legend = "15x15, .=空 X=黑 O=白 *=封锁, 坐标x=列(0-14) y=行(0-14)"
         return legend + "\n" + board_to_text(self.ctrl.board.grid, blocked=blocked)
+
+    def _algorithm_section(self) -> str:
+        """算法检测到的威胁分析，帮助 LLM 做出更准确的决策"""
+        try:
+            from agent.algorithm import (
+                find_immediate_win, find_must_block,
+                find_double_threat_moves, find_existing_live3_blocks,
+                scan_threats,
+            )
+        except ImportError:
+            return ""
+
+        grid = self.ctrl.board.grid
+        blocked = {(p.x, p.y) for p in self.ctrl.board.get_blocked_positions()}
+
+        current = self.ctrl.current_player.color
+        opponent = self.ctrl.opponent_player.color
+
+        lines = ["【算法威胁分析】"]
+
+        # 己方必胜点
+        own_win = find_immediate_win(grid, current, blocked)
+        if own_win:
+            lines.append(f"!!! 己方必胜点: {own_win} —— 落子即五连！")
+
+        # 对方必胜点 —— 必须堵
+        opp_win = find_must_block(grid, opponent, blocked)
+        if opp_win:
+            lines.append(f"!!! 必须封堵: {opp_win} —— 对手落子即五连！")
+
+        # 对方已有活三 —— 必须封堵一端
+        opp_existing_live3 = find_existing_live3_blocks(grid, opponent, blocked)
+        if opp_existing_live3:
+            pts = " ".join(str(p) for p in opp_existing_live3[:6])
+            lines.append(f"!!! 对手已有活三（三子连线+两端空），必须封堵一端: {pts}")
+
+        # 己方双重威胁
+        own_double = find_double_threat_moves(grid, current, blocked)
+        if own_double:
+            pts = " ".join(str(p) for p in own_double[:5])
+            lines.append(f"己方双重威胁点（双活三/活三+冲四/活四）: {pts}")
+
+        # 对方威胁扫描
+        opp_threats = scan_threats(grid, opponent, blocked)
+        if opp_threats["live4_spots"]:
+            pts = " ".join(str(p) for p in opp_threats["live4_spots"][:3])
+            lines.append(f"对手可形成活四的点: {pts}")
+        if opp_threats["double_threats"]:
+            pts = " ".join(str(p) for p in opp_threats["double_threats"][:5])
+            lines.append(f"对手可形成双重威胁的点: {pts}")
+        if opp_threats["rush4_spots"]:
+            pts = " ".join(str(p) for p in opp_threats["rush4_spots"][:5])
+            lines.append(f"对手可形成冲四的点: {pts}")
+        if opp_threats["live3_spots"]:
+            pts = " ".join(str(p) for p in opp_threats["live3_spots"][:5])
+            lines.append(f"对手可形成活三的点: {pts}")
+
+        # 己方进攻机会
+        own_threats = scan_threats(grid, current, blocked)
+        if own_threats["live4_spots"]:
+            pts = " ".join(str(p) for p in own_threats["live4_spots"][:3])
+            lines.append(f"己方可形成活四的点: {pts}")
+        if own_threats["rush4_spots"]:
+            pts = " ".join(str(p) for p in own_threats["rush4_spots"][:5])
+            lines.append(f"己方可形成冲四的点: {pts}")
+        if own_threats["live3_spots"]:
+            pts = " ".join(str(p) for p in own_threats["live3_spots"][:5])
+            lines.append(f"己方可形成活三的点: {pts}")
+
+        if len(lines) == 1:
+            lines.append("当前无明显威胁，正常布局即可。")
+
+        return "\n".join(lines)
 
     def _own_skill_section(self) -> str:
         skill = self.ctrl.current_player.skill
