@@ -12,7 +12,7 @@ _ACTIVE_SKILL_TOOLS = {
         "type": "function",
         "function": {
             "name": "activate_skill",
-            "description": "在指定空位额外生成1颗棋子。每3回合可用一次。调用前确认 turn_count 是3的倍数。",
+            "description": "在指定空位额外生成1颗棋子。仅第5回合后可用，每局限一次。需提供目标坐标。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -27,7 +27,7 @@ _ACTIVE_SKILL_TOOLS = {
         "type": "function",
         "function": {
             "name": "activate_skill",
-            "description": "20%概率在上一落子相邻格生成1子。每次落子后可尝试，无需参数。",
+            "description": "10%概率在上一落子相邻格生成1子。每回合可尝试一次，无需参数。",
             "parameters": {
                 "type": "object",
                 "properties": {},
@@ -38,7 +38,7 @@ _ACTIVE_SKILL_TOOLS = {
         "type": "function",
         "function": {
             "name": "activate_skill",
-            "description": "在上一落子斜向随机生成1颗棋子。每次落子后可尝试，无需参数。",
+            "description": "删除场上随机1颗棋子。每局限一次，无需参数。",
             "parameters": {
                 "type": "object",
                 "properties": {},
@@ -104,8 +104,7 @@ def execute_skill_tool(player, opponent, board, turn_count,
         return result.message
 
     elif name == "四方阵":
-        result = skill.activate(player, opponent, board, turn_count,
-                                target=last_move_pos)
+        result = skill.activate(player, opponent, board, turn_count)
         return result.message
 
     return f"[技能] 未知招式: {name}"

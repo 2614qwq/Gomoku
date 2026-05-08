@@ -1835,3 +1835,108 @@
 23:32:43 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=5)
 23:32:43 | INFO    | gomoku.game_window   | 游戏结束: 白棋获胜！🎉
 23:32:46 | INFO    | gomoku.game_window   | GUI 关闭
+23:34:50 | INFO    | gomoku.game_window   | GUI 初始化完成
+23:34:53 | INFO    | gomoku.game_window   | AI 模式启用, mode=1
+23:35:00 | DEBUG   | gomoku.game_window   | 人类落子: (6,7), turn=1, result=None
+23:35:00 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+23:35:00 | INFO    | gomoku.orchestrator  | 快速开局通道: turn=1, color=O
+23:35:00 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=7)
+23:35:01 | DEBUG   | gomoku.game_window   | 人类落子: (6,8), turn=3, result=None
+23:35:01 | INFO    | gomoku.game_window   | AI 开始思考 (turn=3)
+23:35:01 | INFO    | gomoku.orchestrator  | 快速开局通道: turn=3, color=O
+23:35:08 | WARNING | gomoku.orchestrator  | 快速开局 LLM 返回非法位置 (7,7)，使用邻位兜底
+23:35:09 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=6)
+23:35:18 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵发动！相邻1格生成1子
+23:35:21 | DEBUG   | gomoku.game_window   | 人类落子: (6,6), turn=5, result=None
+23:35:21 | INFO    | gomoku.game_window   | AI 开始思考 (turn=5)
+23:35:21 | INFO    | gomoku.orchestrator  | 算法预检: 封堵对手活三 (6, 5)，跳过 LLM
+23:35:21 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=5)
+23:35:24 | DEBUG   | gomoku.game_window   | 人类落子: (8,4), turn=7, result=None
+23:35:24 | INFO    | gomoku.game_window   | AI 开始思考 (turn=7)
+23:35:24 | INFO    | gomoku.orchestrator  | 算法预检: 封堵对手活三 (9, 3)，跳过 LLM
+23:35:24 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=9, y=3)
+23:35:26 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:27 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵发动！相邻1格生成1子
+23:35:27 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:27 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:28 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵发动！相邻1格生成1子
+23:35:28 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:28 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:28 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:28 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:28 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵发动！相邻1格生成1子
+23:35:29 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:29 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵发动！相邻1格生成1子
+23:35:29 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:29 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:29 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:30 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:30 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵：无可用相邻空位
+23:35:30 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:30 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:30 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 血狱影杀阵触发失败（80%概率未命中）
+23:35:39 | DEBUG   | gomoku.game_window   | 人类落子: (8,11), turn=9, result=None
+23:35:39 | INFO    | gomoku.game_window   | AI 开始思考 (turn=9)
+23:35:41 | INFO    | gomoku.orchestrator  | RAG 已加载: ['search_chess_openings']
+23:35:41 | INFO    | gomoku.orchestrator  | 开始分析 turn=9, color=O, attempt=1
+23:35:41 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+23:35:41 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+23:35:41 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+23:35:41 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+23:35:49 | INFO    | gomoku.orchestrator  | 防守官: move=(5, 7), confidence=0.98
+23:35:54 | INFO    | gomoku.orchestrator  | 战术官: move=(5, 4), confidence=0.30
+23:35:54 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+23:35:54 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+23:35:58 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(5, 7)
+23:35:58 | INFO    | gomoku.orchestrator  | 分析完成: move=(5, 7), phase=normal
+23:35:59 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=5, y=7)
+23:36:03 | INFO    | gomoku.game_window   | GUI 关闭
+23:37:47 | INFO    | gomoku.game_window   | GUI 初始化完成
+23:37:51 | INFO    | gomoku.game_window   | AI 模式启用, mode=2
+23:37:51 | INFO    | gomoku.game_window   | AI 先手，准备落子
+23:37:52 | INFO    | gomoku.game_window   | AI 开始思考 (turn=0)
+23:37:52 | INFO    | gomoku.orchestrator  | 快速开局通道: turn=0, color=X
+23:37:58 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=7)
+23:38:18 | INFO    | gomoku.game_window   | GUI 关闭
+23:54:41 | INFO    | gomoku.game_window   | GUI 初始化完成
+23:54:49 | INFO    | gomoku.game_window   | AI 模式启用, mode=1
+23:54:54 | DEBUG   | gomoku.game_window   | 人类落子: (7,7), turn=1, result=None
+23:54:54 | INFO    | gomoku.game_window   | AI 开始思考 (turn=1)
+23:54:55 | INFO    | gomoku.orchestrator  | 快速开局通道: turn=1, color=O
+23:54:55 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=6, y=7)
+23:54:57 | DEBUG   | gomoku.game_window   | 人类落子: (9,9), turn=3, result=None
+23:54:57 | INFO    | gomoku.game_window   | AI 开始思考 (turn=3)
+23:54:57 | INFO    | gomoku.orchestrator  | 快速开局通道: turn=3, color=O
+23:55:04 | WARNING | gomoku.orchestrator  | 快速开局 LLM 返回非法位置 (7,7)，使用邻位兜底
+23:55:04 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=7, y=6)
+23:55:08 | INFO    | gomoku.game_window   | 招式触发 | 黑棋: 八卦阵：对方无边角棋子
+23:55:08 | DEBUG   | gomoku.game_window   | 人类落子: (8,5), turn=5, result=None
+23:55:08 | INFO    | gomoku.game_window   | AI 开始思考 (turn=5)
+23:55:10 | INFO    | gomoku.orchestrator  | RAG 已加载: ['search_chess_openings']
+23:55:10 | INFO    | gomoku.orchestrator  | 开始分析 turn=5, color=O, attempt=1
+23:55:10 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+23:55:10 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+23:55:10 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+23:55:10 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+23:55:16 | INFO    | gomoku.orchestrator  | 防守官: move=(8, 8), confidence=0.90
+23:55:19 | INFO    | gomoku.orchestrator  | 战术官: move=(8, 7), confidence=0.30
+23:55:19 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+23:55:19 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+23:55:22 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(8, 8)
+23:55:22 | INFO    | gomoku.orchestrator  | 分析完成: move=(8, 8), phase=normal
+23:55:22 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=8, y=8)
+23:55:40 | DEBUG   | gomoku.game_window   | 人类落子: (11,7), turn=7, result=None
+23:55:41 | INFO    | gomoku.game_window   | AI 开始思考 (turn=7)
+23:55:41 | INFO    | gomoku.orchestrator  | 开始分析 turn=7, color=O, attempt=1
+23:55:41 | DEBUG   | gomoku.orchestrator  | 局势分级: normal
+23:55:41 | DEBUG   | gomoku.orchestrator  | Send fan-out: tactical || defense
+23:55:41 | DEBUG   | gomoku.orchestrator  | 战术官分析中...
+23:55:41 | DEBUG   | gomoku.orchestrator  | 防守官分析中...
+23:55:47 | INFO    | gomoku.orchestrator  | 防守官: move=(10, 8), confidence=0.95
+23:55:50 | INFO    | gomoku.orchestrator  | 战术官: move=(8, 5), confidence=0.30
+23:55:50 | DEBUG   | gomoku.orchestrator  | post_analysis 等待 (1/2)
+23:55:50 | DEBUG   | gomoku.orchestrator  | 总策划官裁决中...
+23:55:53 | INFO    | gomoku.orchestrator  | 总策划官裁决: move=(10, 8)
+23:55:53 | INFO    | gomoku.orchestrator  | 分析完成: move=(10, 8), phase=normal
+23:55:53 | INFO    | gomoku.game_window   | AI 落子完成: Position(x=10, y=8)
+23:55:59 | INFO    | gomoku.game_window   | GUI 关闭

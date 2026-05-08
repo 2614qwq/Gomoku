@@ -1,6 +1,6 @@
 """agent — 五子棋多智能体协作系统
 
-基于 LangGraph 编排，三 Agent 协作决策。
+基于 LangGraph 编排，四 Agent 协作决策。
 """
 
 from .llm_client import LLMClient

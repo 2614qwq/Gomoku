@@ -16,7 +16,8 @@ class MultiAgentState(TypedDict, total=False):
     # ---- Agent 输出 ----
     tactical_proposal: Optional[dict]
     defense_proposal: Optional[dict]
-    devil_critiques: Optional[list]
+    devil_critiques: Optional[list]  # 已弃用（保留兼容）
+    skill_decision: Optional[dict]   # 技能使用官的裁决
     chief_decision: Optional[dict]
 
     # ---- 对话历史 (reducer 追加) ----

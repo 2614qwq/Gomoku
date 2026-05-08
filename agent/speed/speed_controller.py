@@ -4,7 +4,7 @@ import asyncio
 
 
 class SpeedController:
-    """根据局势复杂度决定是否启用反对官。全流程由 AI 负责，无引擎兜底。"""
+    """根据局势复杂度分级。全流程由 AI 负责，无引擎兜底。"""
 
     AGENT_TIMEOUT = 3.0
     TOTAL_TIMEOUT = 8.0
@@ -14,7 +14,7 @@ class SpeedController:
         """局势分级。
 
         opening: 前4步快速开局 → orchestrator 硬编码/单次LLM
-        complex: 多威胁并存 → 全流程（含反对官）
+        complex: 多威胁并存 → 全流程（含技能使用官+总策划官）
         normal:  一般局势 → 战术+防守+总策划
         """
         if turn_count <= 4:

@@ -37,6 +37,19 @@ class Critique:
 
 
 @dataclass
+class SkillDecision:
+    """技能使用官的技能裁决"""
+    activate_skill: dict = None     # {"name": "activate_skill", "args": {...}} or None
+    reasoning: str = ""
+
+    def to_dict(self) -> dict:
+        return {
+            "activate_skill": self.activate_skill,
+            "reasoning": self.reasoning,
+        }
+
+
+@dataclass
 class FinalDecision:
     """Chief 的最终决策"""
     move: tuple[int, int]

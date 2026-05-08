@@ -285,7 +285,7 @@ class GomokuGUI:
                 window.show_message("  智能体意见:")
                 role_names = {
                     "tactical": "战术官", "defense": "防守官",
-                    "devil": "反对官", "chief": "总策划官",
+                    "skill_officer": "技能使用官", "chief": "总策划官",
                 }
                 for role, summary in summaries.items():
                     if summary:

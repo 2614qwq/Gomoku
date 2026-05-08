@@ -22,24 +22,29 @@ if TYPE_CHECKING:
 # ============================================================================
 
 class WanningFormation(Skill):
-    """万宁阵法：每3回合可额外生成1颗子"""
+    """万宁阵法：第5回合后可用，每局限一次，落子前在指定空位额外生成1子"""
+
+    def __init__(self):
+        super().__init__()
+        self._used = False
 
     @property
     def skill_name(self): return "万宁阵法"
 
     @property
-    def description(self): return "每3回合可额外生成1颗棋子（点击按钮后点击棋盘放置）"
+    def description(self): return "第5回合后可用，每局限一次，落子前在指定空位额外生成1子"
 
     @property
     def skill_type(self): return SkillType.ACTIVE
 
     def can_activate(self, owner, board, turn_count):
-        return turn_count > 0 and turn_count % 3 == 0
+        return turn_count >= 5 and not self._used
 
     def activate(self, owner, opponent, board, turn_count, target=None):
         if target is None or not board.is_empty(target.x, target.y):
             return SkillResult(message="万宁阵法：需要选择一个空位放置额外棋子")
         board.place(target.x, target.y, owner.color, is_skill=True)
+        self._used = True
         return SkillResult(
             extra_stones=[target],
             message=f"万宁阵法发动！在({target.x},{target.y})额外生成1子"
@@ -47,23 +52,28 @@ class WanningFormation(Skill):
 
 
 class BloodPrisonFormation(Skill):
-    """血狱影杀阵：落子后20%概率在相邻1格生成1子"""
+    """血狱影杀阵：每回合可尝试一次，10%概率在上一落子相邻格生成1子"""
+
+    def __init__(self):
+        super().__init__()
+        self._last_attempted_turn = -1
 
     @property
     def skill_name(self): return "血狱影杀阵"
 
     @property
-    def description(self): return "落子后点击按钮，20%概率在相邻格额外生成1子"
+    def description(self): return "落子前使用，每回合一次，10%概率在上一落子相邻格生成1子"
 
     @property
     def skill_type(self): return SkillType.ACTIVE
 
     def can_activate(self, owner, board, turn_count):
-        return True  # 每次落子后都可尝试
+        return turn_count != self._last_attempted_turn
 
     def activate(self, owner, opponent, board, turn_count, target=None):
-        if random.random() > 0.2:
-            return SkillResult(message="血狱影杀阵触发失败（80%概率未命中）")
+        self._last_attempted_turn = turn_count
+        if random.random() > 0.1:
+            return SkillResult(message="血狱影杀阵触发失败（90%概率未命中）")
         if target is None:
             empty_positions = board.get_empty_positions()
         else:
@@ -79,32 +89,36 @@ class BloodPrisonFormation(Skill):
 
 
 class FourDirectionsFormation(Skill):
-    """四方阵：落子后斜向额外生成1子"""
+    """四方阵：每局限一次，落子前删除场上随机棋子"""
+
+    def __init__(self):
+        super().__init__()
+        self._used = False
 
     @property
     def skill_name(self): return "四方阵"
 
     @property
-    def description(self): return "落子后点击按钮，斜向额外生成1颗棋子"
+    def description(self): return "每局限一次，落子前删除场上随机1颗棋子"
 
     @property
     def skill_type(self): return SkillType.ACTIVE
 
     def can_activate(self, owner, board, turn_count):
-        return True
+        return not self._used
 
     def activate(self, owner, opponent, board, turn_count, target=None):
-        if target is None:
-            empty_positions = board.get_empty_positions()
-        else:
-            empty_positions = board.get_diagonal_empty(target.x, target.y)
-        if not empty_positions:
-            return SkillResult(message="四方阵：无可用斜向空位")
-        pos = random.choice(empty_positions)
-        board.place(pos.x, pos.y, owner.color, is_skill=True)
+        all_stones = [Position(x, y) for y in range(BOARD_SIZE) for x in range(BOARD_SIZE)
+                      if board.get(x, y) != EMPTY]
+        if not all_stones:
+            return SkillResult(message="四方阵：场上无棋子可删除")
+        pos = random.choice(all_stones)
+        removed_color = board.get(pos.x, pos.y)
+        board.remove(pos.x, pos.y)
+        self._used = True
         return SkillResult(
-            extra_stones=[pos],
-            message="四方阵发动！斜向生成1子"
+            removed_stones=[pos],
+            message=f"四方阵发动！删除了({pos.x},{pos.y})的{removed_color}棋子"
         )
 
 

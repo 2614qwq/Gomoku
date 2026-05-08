@@ -15,7 +15,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Send
 
 from .state import MultiAgentState
-from .protocol import FinalDecision, Proposal, Critique
+from .protocol import FinalDecision
 from ..logger import get_logger
 
 _log = get_logger("orchestrator")
@@ -42,7 +42,7 @@ def _explain_invalid(x: int, y: int, board) -> str:
 from ..llm_client import LLMClient
 from ..agents.tactical_analyst import TacticalAnalyst
 from ..agents.defense_specialist import DefenseSpecialist
-from ..agents.devil_advocate import DevilAdvocate
+from ..agents.skill_officer import SkillOfficer
 from ..agents.chief_strategist import ChiefStrategist
 from ..game_info.extractor import GameInfoExtractor
 from ..memory.sliding_memory import SlidingMemory
@@ -82,7 +82,7 @@ class MultiAgentOrchestrator:
         self._agents = {
             "tactical": TacticalAnalyst(LLMClient(model="qwen-plus", temperature=0.1)),
             "defense": DefenseSpecialist(LLMClient(model="qwen-plus", temperature=0.1)),
-            "devil": DevilAdvocate(LLMClient(model="qwen-plus", temperature=0.1)),
+            "skill_officer": SkillOfficer(LLMClient(model="qwen-plus", temperature=0.1)),
             "chief": ChiefStrategist(LLMClient(model="qwen-plus", temperature=0.1)),
         }
         self._quick_llm = LLMClient(model="qwen-plus", temperature=0.1)
@@ -284,7 +284,7 @@ class MultiAgentOrchestrator:
                 "current_color": controller.current_player.color,
                 "tactical_proposal": None,
                 "defense_proposal": None,
-                "devil_critiques": None,
+                "skill_decision": None,
                 "chief_decision": None,
                 "messages": [],
                 "human_question": human_question,
@@ -391,16 +391,37 @@ class MultiAgentOrchestrator:
 
         _log.debug("post_analysis: 两个Agent均已完成，开始裁决")
 
-    def _devil_advocate_node(self, state: MultiAgentState) -> dict:
-        _log.debug("反对官分析中...")
-        critiques = self._agents["devil"].think(
-            state["game_report"],
-            tactical=state.get("tactical_proposal"),
-            defense=state.get("defense_proposal"),
-        )
-        if critiques:
-            _log.info(f"反对官: {len(critiques)}条批评")
-        return {"devil_critiques": [c.to_dict() for c in critiques] if critiques else []}
+    def _skill_officer_node(self, state: MultiAgentState) -> dict:
+        """技能使用官：阅读当前局势，裁决是否使用主动技能"""
+        _log.debug("技能使用官分析中...")
+        ctrl = self._extractor.ctrl
+        player = ctrl.current_player
+        skill_tool = get_skill_tool(player)
+        own_skill = f"{player.skill.skill_name}({player.skill.description})" if player.skill else ""
+
+        proposals = {}
+        if state.get("tactical_proposal"):
+            proposals["tactical"] = state["tactical_proposal"]
+        if state.get("defense_proposal"):
+            proposals["defense"] = state["defense_proposal"]
+
+        if skill_tool:
+            def skill_executor(tool_name, arguments):
+                return (f"[技能预览] 将在落子前激活 {player.skill.skill_name}"
+                        f" 参数: {arguments}" if arguments else
+                        f"[技能预览] 将在落子前激活 {player.skill.skill_name}")
+            decision = self._agents["skill_officer"].think_with_skill_tool(
+                state["game_report"], skill_tool, skill_executor,
+                proposals=proposals, own_skill=own_skill)
+        else:
+            from ..core.protocol import SkillDecision
+            decision = SkillDecision(reasoning="无主动技能")
+
+        if decision and decision.activate_skill:
+            _log.info(f"技能使用官裁决: 激活技能 {decision.activate_skill}")
+        else:
+            _log.info(f"技能使用官裁决: 不使用技能")
+        return {"skill_decision": decision.to_dict() if decision else None}
 
     def _chief_node(self, state: MultiAgentState) -> dict:
         _log.debug("总策划官裁决中...")
@@ -410,40 +431,14 @@ class MultiAgentOrchestrator:
         if state.get("defense_proposal"):
             proposals["defense"] = state["defense_proposal"]
 
-        critiques_raw = state.get("devil_critiques") or []
-        critiques = []
-        for c in critiques_raw:
-            if isinstance(c, dict):
-                critiques.append(Critique(
-                    target_move=tuple(c["target_move"]),
-                    concern=c.get("concern", ""),
-                    severity=c.get("severity", "minor"),
-                ))
+        skill_decision = state.get("skill_decision")
 
-        # 技能 tool-calling：仅当前玩家持有的主动招式可暴露为 tool
-        ctrl = self._extractor.ctrl
-        player = ctrl.current_player
-        skill_tool = get_skill_tool(player)
-        own_skill = f"{player.skill.skill_name}({player.skill.description})" if player.skill else ""
-
-        if skill_tool:
-            # 分析阶段不实际执行技能（只读），仅记录调用意图
-            def skill_executor(tool_name, arguments):
-                return (f"[技能预览] 将在落子后激活 {player.skill.skill_name}"
-                        f" 参数: {arguments}" if arguments else
-                        f"[技能预览] 将在落子后激活 {player.skill.skill_name}")
-            decision = self._agents["chief"].think_with_skill_tool(
-                state["game_report"], skill_tool, skill_executor,
-                proposals=proposals, critiques=critiques, own_skill=own_skill)
-        else:
-            decision = self._agents["chief"].think(
-                state["game_report"], proposals=proposals,
-                critiques=critiques, own_skill=own_skill)
+        decision = self._agents["chief"].think(
+            state["game_report"], proposals=proposals,
+            skill_decision=skill_decision)
 
         if decision:
             _log.info(f"总策划官裁决: move={decision.move}")
-            if decision.activate_skill:
-                _log.info(f"AI 决定激活技能: {decision.activate_skill}")
         return {"chief_decision": decision.to_dict() if decision else None}
 
     def _consensus_node(self, state: MultiAgentState) -> dict:
@@ -495,9 +490,7 @@ class MultiAgentOrchestrator:
             _log.info(f"检测到共识: {tac_move}, 跳过后续流程")
             return "consensus"
 
-        if state.get("phase") == "complex":
-            return "devil"
-        return "chief"
+        return "skill_officer"
 
     # ==================== 图构建 ====================
 
@@ -509,7 +502,7 @@ class MultiAgentOrchestrator:
         builder.add_node("tactical", self._tactical_node)
         builder.add_node("defense", self._defense_node)
         builder.add_node("post_analysis", self._post_analysis_node)
-        builder.add_node("devil_advocate", self._devil_advocate_node)
+        builder.add_node("skill_officer", self._skill_officer_node)
         builder.add_node("chief", self._chief_node)
         builder.add_node("consensus", self._consensus_node)
 
@@ -526,12 +519,11 @@ class MultiAgentOrchestrator:
         # post_analysis 作为 join + 路由节点
         builder.add_conditional_edges("post_analysis", self._route_after_join, {
             "consensus": "consensus",
-            "devil": "devil_advocate",
-            "chief": "chief",
+            "skill_officer": "skill_officer",
         })
 
         builder.add_edge("consensus", END)
-        builder.add_edge("devil_advocate", "chief")
+        builder.add_edge("skill_officer", "chief")
         builder.add_edge("chief", END)
 
         return builder.compile(checkpointer=MemorySaver())
@@ -546,10 +538,14 @@ class MultiAgentOrchestrator:
         else:
             move = (7, 7)
 
+        sd = result.get("skill_decision") or {}
+        activate_skill = sd.get("activate_skill")
+
         decision = FinalDecision(
             move=move,
             reason=cd.get("reason", ""),
             agent_summaries=cd.get("agent_summaries", {}),
+            activate_skill=activate_skill,
         )
 
         self._memory.add_turn({

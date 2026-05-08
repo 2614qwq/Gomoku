@@ -65,9 +65,9 @@ API Key 获取：https://bailian.console.aliyun.com → API Key 管理
 
 | 招式 | 冷却 | 效果 |
 |------|------|------|
-| **万宁阵法** | 3 回合 | 在任意空位额外放置 1 子（需点击棋盘选择目标） |
-| **血狱影杀阵** | — | 20% 概率在上一落子相邻格生成 1 子 |
-| **四方阵** | — | 在上一落子斜向生成 1 子 |
+| **万宁阵法** | 每局限 1 次（第5回合后可用） | 在任意空位额外放置 1 子（需点击棋盘选择目标） |
+| **血狱影杀阵** | 每回合 1 次 | 10% 概率在上一落子相邻格生成 1 子 |
+| **四方阵** | 每局限 1 次 | 删除场上随机 1 颗棋子 |
 
 ### 被动招式（7 个）
 
@@ -96,9 +96,9 @@ GameController ──→ 算法预检（必胜/必堵/双重威胁）
        │         ┌────────────────────────────┼──────────────────────────┐
        │         │                            │                          │
        │   ┌─────▼─────┐              ┌──────▼──────┐           ┌──────▼──────┐
-       │   │  战术官    │              │   防守官     │           │  反对官      │
+       │   │  战术官    │              │   防守官     │           │ 技能使用官   │
        │   │ (qwen-plus)│              │ (qwen-plus) │           │ (qwen-plus) │
-       │   │  进攻分析   │              │   防守分析    │           │  压力测试    │
+       │   │  进攻分析   │              │   防守分析    │           │ 技能裁决    │
        │   └─────┬─────┘              └──────┬──────┘           └──────┬──────┘
        │         │                            │                          │
        │         └────────────────────────────┼──────────────────────────┘
@@ -107,7 +107,6 @@ GameController ──→ 算法预检（必胜/必堵/双重威胁）
        │                               │  总策划官    │
        │                               │ (qwen-plus) │
        │                               │ 汇总裁决    │
-       │                               │ +技能toolcall│
        │                               └──────┬──────┘
        │                                      │
        │                               最终落子 (x, y)
@@ -140,8 +139,7 @@ analyze() 入口
                          post_analysis ← post_analysis   (join 屏障)
                                     ↓
                         ┌─ 共识 → consensus → END
-                        ├─ complex → devil → chief → END
-                        └─ normal → chief → END
+                        └─ skill_officer → chief → END
        │
        └─ 重试耗尽 → 算法搜索兜底（Minimax depth=2）
 ```
@@ -154,8 +152,7 @@ START → phase_check → [Send(tactical) || Send(defense)]
                       post_analysis ←── post_analysis
                            ↓
                  ┌─ 共识(同坐标+置信度>0.8) → consensus → END
-                 ├─ complex → devil_advocate → chief → END
-                 └─ normal → chief → END
+                 └─ skill_officer → chief → END
 ```
 
 ### 四个智能体
@@ -164,7 +161,7 @@ START → phase_check → [Send(tactical) || Send(defense)]
 |------|------|------|
 | **战术官** TacticalAnalyst | qwen-turbo | 寻找进攻机会，结合己方招式优化策略 |
 | **防守官** DefenseSpecialist | qwen-turbo | 识别对手威胁，结合敌方技能做风险预警 |
-| **反对官** DevilAdvocate | qwen-plus | 对战术官和防守官的提案进行压力测试（仅复杂局） |
+| **技能使用官** SkillOfficer | qwen-plus | 阅读当前局势，裁决是否使用主动技能 |
 | **总策划官** ChiefStrategist | qwen-plus | 汇总所有意见，做出最终落子裁决 |
 
 ### 性能优化
@@ -217,7 +214,7 @@ START → phase_check → [Send(tactical) || Send(defense)]
 │   │   ├── base_agent.py        # Agent 抽象基类（模板方法）
 │   │   ├── tactical_analyst.py  # 战术官（进攻分析）
 │   │   ├── defense_specialist.py# 防守官（防守分析）
-│   │   ├── devil_advocate.py    # 反对官（压力测试）
+│   │   ├── skill_officer.py      # 技能使用官（技能裁决）
 │   │   └── chief_strategist.py  # 总策划官（最终裁决 + 技能 tool-calling）
 │   ├── game_info/
 │   │   └── extractor.py         # 游戏信息提取器（含算法威胁分析）
@@ -228,7 +225,7 @@ START → phase_check → [Send(tactical) || Send(defense)]
 │   └── prompts/                 # 角色提示词模板
 │       ├── tactical.txt
 │       ├── defense.txt
-│       ├── devil_advocate.txt
+│       ├── skill_officer.txt
 │       └── chief.txt
 │
 ├── 五子棋获胜常见条件.txt         # 必胜定式与攻防策略参考文档
@@ -261,6 +258,11 @@ Python 标准库：`tkinter`, `abc`, `dataclasses`, `enum`, `typing`, `collectio
 
 ## 版本历史
 
+### v0.7.0 (2026-05-09)
+
+- 重构：**反对官 → 技能使用官** —— 技能使用官专门阅读当前局势、裁决是否使用主动技能，总策划官不再负责技能调用
+- 重做：**三个主动技能** —— 万宁阵法（第5回合后/每局限1次）、血狱影杀阵（每回合1次/10%概率）、四方阵（每局限1次/删除随机棋子）
+
 ### v0.6.0 (2026-05-08)
 
 - 新增：**传统算法引擎**（`agent/algorithm/`）—— 棋型检测 + 局面评估 + Minimax/Alpha-Beta 搜索
@@ -275,7 +277,7 @@ Python 标准库：`tkinter`, `abc`, `dataclasses`, `enum`, `typing`, `collectio
 - 新增：**五子棋获胜常见条件文档**（`五子棋获胜常见条件.txt`）—— 涵盖五连、活四、四三杀、双活三、四四杀、VCF/VCT 等必胜定式
 - 优化：战术官 prompt 重写，聚焦活二→活三→四三杀/双活三→五连的渐进式进攻路线
 - 优化：防守官 prompt 重写，强化从活二源头阻断、抢占交叉点的防守策略
-- 优化：反对官 prompt 重写，增加 VCF/斜线盲区检查项
+- 优化：反对官 prompt 重写，增加 VCF/斜线盲区检查项（v0.7.0 已重构为技能使用官）
 - 优化：**Token 用量削减** —— LLM 调用增加 max_tokens 限制（256/512），game_report 紧凑化坐标格式，prompt 精简冗余描述
 
 ### v0.4.2 (2026-05-08)
