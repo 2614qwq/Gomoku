@@ -108,6 +108,9 @@ class Board:
     def is_blocked(self, x: int, y: int) -> bool:
         return (x, y) in self._blocked_positions
 
+    def get_blocked_positions(self) -> list[Position]:
+        return [Position(x, y) for (x, y) in self._blocked_positions]
+
     def clear_blocked(self):
         self._blocked_positions.clear()
 

@@ -418,6 +418,20 @@ class GomokuGUI:
                                      cx + STONE_RADIUS, cy + STONE_RADIUS,
                                      fill=fill_color, outline=outline_color, width=2)
 
+        # 绘制被封锁的位置（梅花阵花苞 / 困龙阵封锁）
+        BUD_RADIUS = STONE_RADIUS - 2
+        BUD_FILL = '#FFB7C5'       # 浅粉色花瓣
+        BUD_OUTLINE = '#E75480'    # 深粉色轮廓
+        for pos in board.get_blocked_positions():
+            cx, cy = MARGIN + pos.x * CELL_SIZE, MARGIN + pos.y * CELL_SIZE
+            # 花苞主体
+            self._cv.create_oval(cx - BUD_RADIUS, cy - BUD_RADIUS,
+                                 cx + BUD_RADIUS, cy + BUD_RADIUS,
+                                 fill=BUD_FILL, outline=BUD_OUTLINE, width=2)
+            # 花苞中心小点
+            self._cv.create_oval(cx - 3, cy - 3, cx + 3, cy + 3,
+                                 fill=BUD_OUTLINE, outline='')
+
         if not self._controller.is_game_over():
             player = self._controller.current_player
             mode = self._controller.game_mode
