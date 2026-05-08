@@ -1,5 +1,6 @@
 """阿里云百炼 LLM 客户端 —— 封装 DashScope API 调用"""
 
+import json
 import os
 import re
 from openai import OpenAI
@@ -32,6 +33,41 @@ class LLMClient:
             kwargs["response_format"] = {"type": "json_object"}
         response = self._client.chat.completions.create(**kwargs)
         return response.choices[0].message.content
+
+    def chat_with_tools(self, system_prompt: str, user_message: str,
+                         tools: list[dict]) -> dict:
+        """支持 tool-calling 的 LLM 调用
+
+        Returns:
+            {"content": str | None, "tool_calls": list | None}
+        """
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ]
+        response = self._client.chat.completions.create(
+            model=self._model,
+            messages=messages,
+            tools=tools,
+            tool_choice="auto",
+            temperature=self._temperature,
+        )
+        msg = response.choices[0].message
+        result = {"content": msg.content, "tool_calls": None}
+        if msg.tool_calls:
+            result["tool_calls"] = []
+            for tc in msg.tool_calls:
+                raw_args = tc.function.arguments
+                if isinstance(raw_args, str):
+                    try:
+                        raw_args = json.loads(raw_args)
+                    except json.JSONDecodeError:
+                        pass
+                result["tool_calls"].append({
+                    "name": tc.function.name,
+                    "arguments": raw_args,
+                })
+        return result
 
     def parse_move(self, text: str):
         """从 LLM 输出中提取落子坐标。优先 MOVE:x,y，兜底取最后两个数字"""

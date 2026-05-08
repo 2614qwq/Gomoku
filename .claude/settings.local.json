@@ -7,7 +7,10 @@
       "Bash(python -c \"import ast; ast.parse\\(open\\('五子棋/core/models.py', encoding='utf-8'\\).read\\(\\)\\); print\\('models.py OK'\\)\")",
       "Bash(python -c \"import ast; ast.parse\\(open\\('五子棋/ui/game_window.py', encoding='utf-8'\\).read\\(\\)\\); print\\('game_window.py OK'\\)\")",
       "Bash(git diff *)",
-      "Read(//c/Users/29424/**)"
+      "Read(//c/Users/29424/**)",
+      "Bash(python *)",
+      "Bash(git checkout *)",
+      "Bash(git fsck *)"
     ]
   }
 }

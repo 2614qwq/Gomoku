@@ -1,9 +1,8 @@
 """MultiAgentOrchestrator —— LangGraph StateGraph 编排器
 
-优化版（使用 LangGraph 原生 Send API 实现并行）：
   - phase_check → [Send("tactical") || Send("defense")]  — LangGraph 原生 fan-out
   - post_analysis 作为 join 节点，汇总并行结果
-  - simple / emergency 阶段跳过 LLM，直接使用引擎
+  - 全流程由 AI 决策（无引擎兜底）
   - tactical 与 defense 共识时跳过 chief
 """
 from __future__ import annotations
@@ -20,6 +19,20 @@ from .protocol import FinalDecision, Proposal, Critique
 from ..logger import get_logger
 
 _log = get_logger("orchestrator")
+
+
+def _explain_invalid(x: int, y: int, board) -> str:
+    """解释为什么 (x,y) 不可落子"""
+    if not (0 <= x < 15 and 0 <= y < 15):
+        return "超出棋盘范围(0-14)"
+    stone = board.get(x, y)
+    if stone != " ":
+        return f"已被棋子占据({stone})"
+    if board.is_blocked(x, y):
+        return "是封锁位(*)"
+    return "不可用"
+
+
 from ..llm_client import LLMClient
 from ..agents.tactical_analyst import TacticalAnalyst
 from ..agents.defense_specialist import DefenseSpecialist
@@ -28,6 +41,26 @@ from ..agents.chief_strategist import ChiefStrategist
 from ..game_info.extractor import GameInfoExtractor
 from ..memory.sliding_memory import SlidingMemory
 from ..speed.speed_controller import SpeedController
+
+# RAG 模块（可选，首次索引后生效）
+_rag_tools = None
+_rag_executor = None
+
+
+def _init_rag():
+    """懒加载 RAG tools 和 executor"""
+    global _rag_tools, _rag_executor
+    if _rag_tools is None:
+        try:
+            from rag import get_tools
+            registry = get_tools()
+            _rag_tools = registry.get_schemas()
+            _rag_executor = registry.execute
+            _log.info(f"RAG 已加载: {registry.tool_names}")
+        except Exception as e:
+            _log.warning(f"RAG 加载失败（检索不可用）: {e}")
+            _rag_tools = []
+            _rag_executor = lambda n, a: "[RAG] 不可用"
 
 
 class MultiAgentOrchestrator:
@@ -40,86 +73,199 @@ class MultiAgentOrchestrator:
         self._memory = SlidingMemory()
         self._speed_ctrl = SpeedController()
         self._agents = {
-            "tactical": TacticalAnalyst(LLMClient(model="qwen-turbo", temperature=0.1)),
-            "defense": DefenseSpecialist(LLMClient(model="qwen-turbo", temperature=0.1)),
+            "tactical": TacticalAnalyst(LLMClient(model="qwen-plus", temperature=0.1)),
+            "defense": DefenseSpecialist(LLMClient(model="qwen-plus", temperature=0.1)),
             "devil": DevilAdvocate(LLMClient(model="qwen-plus", temperature=0.1)),
             "chief": ChiefStrategist(LLMClient(model="qwen-plus", temperature=0.1)),
         }
+        self._quick_llm = LLMClient(model="qwen-plus", temperature=0.1)
         self._extractor: Optional[GameInfoExtractor] = None
         self._graph = self._build_graph()
+
+    # ==================== 快速开局通道 ====================
+
+    def _quick_opening_move(self, game_report: str, turn_count: int,
+                            current_color: str, board) -> FinalDecision:
+        """回合 1-4 的快速开局决策：第1步硬编码中心，第2-4步单次 LLM"""
+        _log.info(f"快速开局通道: turn={turn_count}, color={current_color}")
+
+        if turn_count == 1:
+            x, y = self._pick_center_or_nearby(board)
+            return FinalDecision(
+                move=(x, y),
+                reason="开局第一步：占天元（中心）最优，若被占则取邻位",
+                agent_summaries={"quick_opening": "硬编码天元/邻位"},
+            )
+
+        prompt = (
+            "你是五子棋开局专家。根据当前局面，给出一个合理的开局落子。\n"
+            "职业规则：优先中心区域，积极构造活二、活三。不必过度防守。\n"
+            "输出JSON: {\"move\": [x,y], \"reasoning\": \"...\", \"confidence\": 0.0-1.0}\n"
+            "规则：只能在 . 空位落子，严禁选 X/O/* 格。"
+        )
+        raw = self._quick_llm.chat(prompt, game_report, response_format="json_object")
+        reason = "开局快速决策"
+        summary = ""
+        try:
+            import json
+            data = json.loads(raw)
+            move = data.get("move", [7, 7])
+            if isinstance(move, list) and len(move) == 2:
+                x, y = int(move[0]), int(move[1])
+            else:
+                x, y = 7, 7
+            reason = data.get("reasoning", reason)
+            summary = data.get("reasoning", "")
+        except Exception:
+            x, y = 7, 7
+
+        if not board.is_empty(x, y):
+            _log.warning(f"快速开局 LLM 返回非法位置 ({x},{y})，使用邻位兜底")
+            x, y = self._pick_center_or_nearby(board)
+
+        return FinalDecision(
+            move=(x, y),
+            reason=reason,
+            agent_summaries={"quick_opening": summary},
+        )
+
+    def _pick_center_or_nearby(self, board) -> tuple:
+        """选择中心空位，若被占则选邻位"""
+        if board.is_empty(7, 7):
+            return (7, 7)
+        neighbors = [(6, 7), (7, 6), (6, 6), (8, 7), (7, 8), (8, 8), (6, 8), (8, 6)]
+        for nx, ny in neighbors:
+            if board.is_empty(nx, ny):
+                return (nx, ny)
+        import random
+        empty = board.get_empty_positions()
+        if empty:
+            pos = random.choice(empty)
+            return (pos.x, pos.y)
+        return (7, 7)
 
     # ==================== 对外接口 ====================
 
     def analyze(self, controller, human_question: str = "") -> FinalDecision:
-        """执行一次完整的多智能体分析，返回最终决策"""
+        """执行一次完整的多智能体分析，返回最终决策。
+
+        带校验-警告-重试循环：若 AI 落子位置非法，在 game_report 末尾附加
+        警告信息后重新调用，最多重试 3 次。
+        """
         self._extractor = GameInfoExtractor(controller)
-        game_report = self._extractor.build_game_report()
+        base_report = self._extractor.build_game_report()
+
+        # 快速开局通道：第1步硬编码，第2-4步单次LLM
+        if controller.turn_count <= 4:
+            decision = self._quick_opening_move(
+                base_report, controller.turn_count,
+                controller.current_player.color,
+                controller.board)
+            # 校验快速开局落子合法性（兜底保护）
+            x, y = decision.move
+            if not controller.board.is_empty(x, y):
+                _log.warning(f"快速开局返回非法位置 ({x},{y})，使用随机空位兜底")
+                import random
+                empty = controller.board.get_empty_positions()
+                if empty:
+                    pos = random.choice(empty)
+                    decision = FinalDecision(
+                        move=(pos.x, pos.y),
+                        reason="快速开局兜底",
+                        agent_summaries={"quick_opening": "fallback"},
+                    )
+            return decision
+
+        # RAG 棋谱检索（turn >= 5 时启用）
+        if controller.turn_count >= 5:
+            _init_rag()
+            if _rag_tools:
+                try:
+                    rag_ctx = self._extractor.get_rag_context()
+                    if rag_ctx:
+                        base_report += f"\n\n{rag_ctx}"
+                except Exception:
+                    pass  # RAG 失败不影响主流程
 
         mem_ctx = self._memory.get_context_for_prompt()
         if mem_ctx:
-            game_report += f"\n\n【历史背景】\n{mem_ctx}"
+            base_report += f"\n\n【历史背景】\n{mem_ctx}"
 
-        _log.info(f"开始分析 turn={controller.turn_count}, "
-                  f"color={controller.current_player.color}, "
-                  f"is_rethink={bool(human_question)}")
+        max_retries = 3
+        warning = ""
 
-        initial_state: MultiAgentState = {
-            "game_report": game_report,
-            "turn_count": controller.turn_count,
-            "current_color": controller.current_player.color,
-            "tactical_proposal": None,
-            "defense_proposal": None,
-            "devil_critiques": None,
-            "chief_decision": None,
-            "messages": [],
-            "human_question": human_question,
-            "is_rethinking": bool(human_question),
-            "phase": "normal",
-            "skip_llm": False,
-            "_join_counter": 0,
-        }
-        result = self._graph.invoke(
-            initial_state,
-            config={"configurable": {"thread_id": f"game_{controller.turn_count}"}},
+        for attempt in range(max_retries + 1):
+            game_report = base_report + warning
+
+            _log.info(f"开始分析 turn={controller.turn_count}, "
+                      f"color={controller.current_player.color}, "
+                      f"attempt={attempt + 1}")
+
+            initial_state: MultiAgentState = {
+                "game_report": game_report,
+                "turn_count": controller.turn_count,
+                "current_color": controller.current_player.color,
+                "tactical_proposal": None,
+                "defense_proposal": None,
+                "devil_critiques": None,
+                "chief_decision": None,
+                "messages": [],
+                "human_question": human_question,
+                "is_rethinking": bool(human_question),
+                "phase": "normal",
+                "_join_counter": 0,
+            }
+            result = self._graph.invoke(
+                initial_state,
+                config={"configurable": {"thread_id": f"game_{controller.turn_count}_r{attempt}"}},
+            )
+            decision = self._extract_decision(result)
+
+            # 校验落子合法性
+            x, y = decision.move
+            if controller.board.is_empty(x, y):
+                _log.info(f"分析完成: move={decision.move}, phase={result.get('phase','?')}")
+                return decision
+
+            # 位置非法——附加警告并重试
+            _log.warning(f"AI 返回非法位置 ({x},{y})，第 {attempt + 1} 次重试")
+            reason = _explain_invalid(x, y, controller.board)
+            warning = (f"\n\n!!! 警告（第{attempt + 1}次）: 你上次选的 ({x},{y}) {reason}。"
+                       f"请仔细看棋盘，只能选 . 空位。禁止选 X/O/* 格。")
+
+        # 全部重试失败：随机空位兜底
+        import random
+        empty = controller.board.get_empty_positions()
+        if empty:
+            fallback = random.choice(empty)
+            _log.warning(f"重试耗尽，随机兜底: {fallback}")
+            return FinalDecision(
+                move=(fallback.x, fallback.y),
+                reason="警告机制：AI 3次均返回非法位置，随机选取空位兜底",
+                agent_summaries={},
+            )
+        return FinalDecision(
+            move=(7, 7),
+            reason="警告机制：无可用空位",
+            agent_summaries={},
         )
-        decision = self._extract_decision(result)
-        _log.info(f"分析完成: move={decision.move}, phase={result.get('phase','?')}, "
-                  f"skip_llm={result.get('skip_llm', False)}")
-        return decision
 
     # ==================== Node 函数 ====================
 
     def _phase_check_node(self, state: MultiAgentState) -> dict:
         phase = self._speed_ctrl.classify_phase(
             state["game_report"], state["turn_count"])
-        skip = phase in ("emergency", "simple")
-        _log.debug(f"局势分级: {phase}, skip_llm={skip}")
-        return {"phase": phase, "skip_llm": skip}
-
-    def _engine_fallback_node(self, state: MultiAgentState) -> dict:
-        _log.info(f"使用引擎兜底 (phase={state.get('phase', '?')})")
-        try:
-            from .. import engine
-            color = state["current_color"]
-            board_grid = self._extractor.ctrl.board.grid if self._extractor else None
-            move = engine.get_best_move(board_grid, color) if board_grid else (7, 7)
-        except Exception:
-            move = (7, 7)
-        phase_label = {"simple": "简单局面", "emergency": "紧急防守"}.get(
-            state.get("phase", ""), "快速决策")
-        return {
-            "chief_decision": {
-                "move": list(move),
-                "reason": f"引擎{phase_label}",
-                "agent_summaries": {},
-            },
-            "skip_llm": True,
-        }
+        _log.debug(f"局势分级: {phase}")
+        return {"phase": phase}
 
     def _tactical_node(self, state: MultiAgentState) -> dict:
         """战术官：进攻分析（LangGraph 独立节点，由 Send fan-out 并行调度）"""
         _log.debug("战术官分析中...")
-        proposal = self._agents["tactical"].think(state["game_report"])
+        if _rag_tools:
+            proposal = self._agents["tactical"].think_with_tools(
+                state["game_report"], _rag_tools, _rag_executor)
+        else:
+            proposal = self._agents["tactical"].think(state["game_report"])
         if proposal:
             _log.info(f"战术官: move={proposal.move}, "
                       f"confidence={proposal.confidence:.2f}")
@@ -129,7 +275,11 @@ class MultiAgentOrchestrator:
     def _defense_node(self, state: MultiAgentState) -> dict:
         """防守官：防守分析（LangGraph 独立节点，由 Send fan-out 并行调度）"""
         _log.debug("防守官分析中...")
-        proposal = self._agents["defense"].think(state["game_report"])
+        if _rag_tools:
+            proposal = self._agents["defense"].think_with_tools(
+                state["game_report"], _rag_tools, _rag_executor)
+        else:
+            proposal = self._agents["defense"].think(state["game_report"])
         if proposal:
             _log.info(f"防守官: move={proposal.move}, "
                       f"confidence={proposal.confidence:.2f}")
@@ -206,16 +356,8 @@ class MultiAgentOrchestrator:
 
     # ==================== 条件路由 ====================
 
-    def _fanout_or_skip(self, state: MultiAgentState) -> Union[str, list[Send]]:
-        """phase_check 之后的分发逻辑。
-
-        - skip_llm=True → 直接走引擎兜底
-        - 否则 → LangGraph Send fan-out：tactical 和 defense 并行执行
-        """
-        if state.get("skip_llm"):
-            _log.debug("跳过 LLM，走引擎兜底")
-            return "engine_fallback"
-
+    def _fanout_or_skip(self, state: MultiAgentState) -> list[Send]:
+        """phase_check 之后直接并发 fan-out：tactical 和 defense 并行执行"""
         _log.debug("Send fan-out: tactical || defense")
         return [
             Send("tactical", state),
@@ -253,7 +395,6 @@ class MultiAgentOrchestrator:
 
         # 节点注册
         builder.add_node("phase_check", self._phase_check_node)
-        builder.add_node("engine_fallback", self._engine_fallback_node)
         builder.add_node("tactical", self._tactical_node)
         builder.add_node("defense", self._defense_node)
         builder.add_node("post_analysis", self._post_analysis_node)
@@ -264,11 +405,8 @@ class MultiAgentOrchestrator:
         # 图结构
         builder.add_edge(START, "phase_check")
 
-        # phase_check → engine_fallback 或 [Send(tactical) || Send(defense)]
-        builder.add_conditional_edges("phase_check", self._fanout_or_skip, {
-            "engine_fallback": "engine_fallback",
-        })
-        builder.add_edge("engine_fallback", END)
+        # phase_check → [Send(tactical) || Send(defense)] 直接并发
+        builder.add_conditional_edges("phase_check", self._fanout_or_skip, {})
 
         # tactical 和 defense 并行执行后汇聚到 post_analysis
         builder.add_edge("tactical", "post_analysis")

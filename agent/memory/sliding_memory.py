@@ -9,7 +9,7 @@ class SlidingMemory:
       长时记忆: 最多 5 条关键事件（技能触发、四连威胁等）
     """
 
-    def __init__(self, max_turns: int = 10, max_events: int = 5):
+    def __init__(self, max_turns: int = 2, max_events: int = 2):
         self._turns: deque = deque(maxlen=max_turns)
         self._key_events: deque = deque(maxlen=max_events)
 
@@ -20,7 +20,7 @@ class SlidingMemory:
     def add_key_event(self, event: str):
         self._key_events.append(event)
 
-    def get_context_for_prompt(self, max_turns: int = 3, max_chars: int = 500) -> str:
+    def get_context_for_prompt(self, max_turns: int = 2, max_chars: int = 500) -> str:
         """获取压缩后的历史上下文，控制在 Token 预算内"""
         parts = []
         if self._key_events:
