@@ -4,6 +4,8 @@
   - 四个方向双向计数，遇到边界/对方子/空位/封锁位立即停止
   - 端点状态记录：正/负方向第一个非己方格子是"空位"还是"被堵"
   - 连续子总数 + 两端空位数 → 棋型映射
+
+grid 为 int 网格: 0=空, 奇数=黑(X), 偶数=白(O)
 """
 
 from __future__ import annotations
@@ -12,11 +14,29 @@ DIRECTIONS = [(1, 0), (0, 1), (1, 1), (1, -1)]  # 水平、垂直、主对角、
 BOARD_SIZE = 15
 
 
+def _is_black(v: int) -> bool:
+    """v > 0 且为奇数 → 黑棋"""
+    return v > 0 and v % 2 == 1
+
+
+def _is_white(v: int) -> bool:
+    """v > 0 且为偶数 → 白棋"""
+    return v > 0 and v % 2 == 0
+
+
+def _is_own(v: int, player: str) -> bool:
+    """int值 v 是否属于 player ('X'=黑奇数, 'O'=白偶数)"""
+    if player == 'X':
+        return _is_black(v)
+    else:
+        return _is_white(v)
+
+
 def extract_patterns(grid, x, y, player, blocked=None):
     """提取 (x,y) 落子后产生的棋型数量
 
     Args:
-        grid: 15x15 二维数组, ' '/'.'=空, 'X'=黑, 'O'=白
+        grid: 15x15 int 二维数组, 0=空, 奇数=黑(X), 偶数=白(O)
         player: 当前落子方 ('X' 或 'O')
         blocked: 封锁位置集合 set of (x, y)
 
@@ -30,11 +50,11 @@ def extract_patterns(grid, x, y, player, blocked=None):
 
     def _is_empty(_x, _y):
         return (0 <= _x < BOARD_SIZE and 0 <= _y < BOARD_SIZE
-                and grid[_y][_x] in (' ', '.')
+                and grid[_y][_x] == 0
                 and (_x, _y) not in blocked)
 
     def _is_player(_x, _y):
-        return 0 <= _x < BOARD_SIZE and 0 <= _y < BOARD_SIZE and grid[_y][_x] == player
+        return 0 <= _x < BOARD_SIZE and 0 <= _y < BOARD_SIZE and _is_own(grid[_y][_x], player)
 
     for dx, dy in DIRECTIONS:
         # 正向计数
@@ -85,12 +105,12 @@ def _empty_positions_near_stones(grid, blocked, radius=2):
     candidates = set()
     for y in range(BOARD_SIZE):
         for x in range(BOARD_SIZE):
-            if grid[y][x] in ('X', 'O'):
+            if grid[y][x] != 0:
                 for dy in range(-radius, radius + 1):
                     for dx in range(-radius, radius + 1):
                         nx, ny = x + dx, y + dy
                         if (0 <= nx < BOARD_SIZE and 0 <= ny < BOARD_SIZE
-                                and grid[ny][nx] in (' ', '.')
+                                and grid[ny][nx] == 0
                                 and (nx, ny) not in blocked):
                             candidates.add((nx, ny))
     return list(candidates)
@@ -109,11 +129,10 @@ def find_immediate_win(grid, player, blocked=None):
         p = extract_patterns(grid, x, y, player, blocked)
         if p["win"] > 0:
             return (x, y)
-    # 候选为空时全局搜索
     if not candidates:
         for y in range(BOARD_SIZE):
             for x in range(BOARD_SIZE):
-                if grid[y][x] in (' ', '.') and (x, y) not in blocked:
+                if grid[y][x] == 0 and (x, y) not in blocked:
                     p = extract_patterns(grid, x, y, player, blocked)
                     if p["win"] > 0:
                         return (x, y)
@@ -143,10 +162,8 @@ def find_double_threat_moves(grid, player, blocked=None):
     result = []
     for x, y in candidates:
         p = extract_patterns(grid, x, y, player, blocked)
-        # 直接赢的不算（由 find_immediate_win 处理）
         if p["win"] > 0:
             continue
-        # 双活三或活三+冲四都是必胜
         if p["live3"] >= 2:
             result.append((x, y))
         elif p["live3"] >= 1 and p["rush4"] >= 1:
@@ -164,9 +181,6 @@ def find_existing_live3_blocks(grid, player, blocked=None):
     扫描棋盘上 player 已形成的活三（三子连线 + 两端空），
     返回所有可封堵的位置。
 
-    为什么必须封堵活三：对手下一步在该线的任一端落子，活三变活四。
-    活四两端皆空，堵一端对手赢另一端，无法防守。
-
     Returns:
         list of (x, y) 封堵位置（去重）
     """
@@ -178,12 +192,11 @@ def find_existing_live3_blocks(grid, player, blocked=None):
 
     for y in range(BOARD_SIZE):
         for x in range(BOARD_SIZE):
-            if grid[y][x] != player:
+            if not _is_own(grid[y][x], player):
                 continue
             for dx, dy in DIRECTIONS:
-                # 只从线段起点开始计数（前一个位置不是 player）
                 px, py = x - dx, y - dy
-                if 0 <= px < BOARD_SIZE and 0 <= py < BOARD_SIZE and grid[py][px] == player:
+                if 0 <= px < BOARD_SIZE and 0 <= py < BOARD_SIZE and _is_own(grid[py][px], player):
                     continue
 
                 line_key = (x, y, dx, dy)
@@ -191,11 +204,10 @@ def find_existing_live3_blocks(grid, player, blocked=None):
                     continue
                 visited.add(line_key)
 
-                # 正向计数连续同色子
                 count = 1
                 cx, cy = x + dx, y + dy
                 while (0 <= cx < BOARD_SIZE and 0 <= cy < BOARD_SIZE
-                       and grid[cy][cx] == player):
+                       and _is_own(grid[cy][cx], player)):
                     count += 1
                     cx += dx
                     cy += dy
@@ -203,13 +215,12 @@ def find_existing_live3_blocks(grid, player, blocked=None):
                 if count != 3:
                     continue
 
-                # 两端状态：必须两端都空才是活三
                 neg_x, neg_y = x - dx, y - dy
                 neg_open = (0 <= neg_x < BOARD_SIZE and 0 <= neg_y < BOARD_SIZE
-                            and grid[neg_y][neg_x] in (' ', '.')
+                            and grid[neg_y][neg_x] == 0
                             and (neg_x, neg_y) not in blocked)
                 pos_open = (0 <= cx < BOARD_SIZE and 0 <= cy < BOARD_SIZE
-                            and grid[cy][cx] in (' ', '.')
+                            and grid[cy][cx] == 0
                             and (cx, cy) not in blocked)
 
                 if neg_open and pos_open:
@@ -224,11 +235,11 @@ def scan_threats(grid, player, blocked=None):
 
     Returns:
         dict: {
-            "win_threats": [(x, y), ...],      # 对手下一手能赢的位置（必须堵）
-            "double_threats": [(x, y), ...],    # 能形成双重威胁的落点
-            "live4_spots": [(x, y), ...],       # 能形成活四的落点
-            "rush4_spots": [(x, y), ...],       # 能形成冲四的落点
-            "live3_spots": [(x, y), ...],       # 能形成活三的落点
+            "win_threats": [(x, y), ...],
+            "double_threats": [(x, y), ...],
+            "live4_spots": [(x, y), ...],
+            "rush4_spots": [(x, y), ...],
+            "live3_spots": [(x, y), ...],
         }
     """
     if blocked is None:

@@ -409,14 +409,13 @@ class GomokuGUI:
         for y in range(BOARD_SIZE):
             for x in range(BOARD_SIZE):
                 stone = board.get(x, y)
-                if stone == EMPTY:
+                if stone == 0:
                     continue
                 cx, cy = MARGIN + x * CELL_SIZE, MARGIN + y * CELL_SIZE
-                fill_color = 'black' if stone == BLACK else 'white'
-                outline_color = '#CC4444' if board.is_skill_stone(x, y) else 'gray'
+                fill_color = 'black' if board.is_black(x, y) else 'white'
                 self._cv.create_oval(cx - STONE_RADIUS, cy - STONE_RADIUS,
                                      cx + STONE_RADIUS, cy + STONE_RADIUS,
-                                     fill=fill_color, outline=outline_color, width=2)
+                                     fill=fill_color, outline='gray', width=2)
 
         # 绘制被封锁的位置（梅花阵花苞 / 困龙阵封锁）
         BUD_RADIUS = STONE_RADIUS - 2

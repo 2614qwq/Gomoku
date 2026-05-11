@@ -31,9 +31,10 @@ def _explain_invalid(x: int, y: int, board) -> str:
     """解释为什么 (x,y) 不可落子"""
     if not (0 <= x < 15 and 0 <= y < 15):
         return "超出棋盘范围(0-14)"
-    stone = board.get(x, y)
-    if stone != " ":
-        return f"已被棋子占据({stone})"
+    v = board.get(x, y)
+    if v != 0:
+        ch = board.get_color(x, y)
+        return f"已被棋子占据({ch})"
     if board.is_blocked(x, y):
         return "是封锁位(*)"
     return "不可用"

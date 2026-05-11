@@ -1,7 +1,10 @@
-"""五子棋评估函数 —— 将棋型转化为分数，供搜索算法使用"""
+"""五子棋评估函数 —— 将棋型转化为分数，供搜索算法使用
+
+grid 为 int 网格: 0=空, 奇数=黑(X), 偶数=白(O)
+"""
 
 from __future__ import annotations
-from .pattern import extract_patterns, DIRECTIONS, BOARD_SIZE
+from .pattern import extract_patterns, _is_own, DIRECTIONS, BOARD_SIZE
 
 # 基础权重
 WEIGHTS = {
@@ -50,33 +53,30 @@ def _scan_all_patterns(grid, player, blocked=None):
     if blocked is None:
         blocked = set()
     total = 0
-    visited = set()  # 记录已计数的线段起点
+    visited = set()
 
     for y in range(BOARD_SIZE):
         for x in range(BOARD_SIZE):
-            if grid[y][x] != player:
+            if not _is_own(grid[y][x], player):
                 continue
             for dx, dy in DIRECTIONS:
                 line_key = (x, y, dx, dy)
                 if line_key in visited:
                     continue
 
-                # 只从线段起点开始计数
                 px, py = x - dx, y - dy
-                if 0 <= px < BOARD_SIZE and 0 <= py < BOARD_SIZE and grid[py][px] == player:
+                if 0 <= px < BOARD_SIZE and 0 <= py < BOARD_SIZE and _is_own(grid[py][px], player):
                     continue
 
-                # 正向计数
                 count = 1
                 cx, cy = x + dx, y + dy
                 while (0 <= cx < BOARD_SIZE and 0 <= cy < BOARD_SIZE
-                       and grid[cy][cx] == player):
+                       and _is_own(grid[cy][cx], player)):
                     count += 1
                     visited.add((cx, cy, dx, dy))
                     cx += dx
                     cy += dy
 
-                # 端点状态
                 pos_open = _is_empty(grid, cx, cy, blocked)
                 px2, py2 = x - dx, y - dy
                 neg_open = _is_empty(grid, px2, py2, blocked)
@@ -110,6 +110,6 @@ def _is_empty(grid, x, y, blocked):
         return False
     if (x, y) in blocked:
         return False
-    if grid[y][x] not in (' ', '.'):
+    if grid[y][x] != 0:
         return False
     return True

@@ -1,6 +1,11 @@
-"""GameInfoExtractor —— 从 GameController 提取 Agent 所需的文本报告"""
+"""GameInfoExtractor —— 从 GameController 提取 Agent 所需的文本报告
 
-from ..board_codec import board_to_text
+双轨输出：
+  - board_to_text() → X/O/* 可视化棋盘（空间视图）
+  - board_to_move_sequence() → 编号落子序列（时间视图）
+"""
+
+from ..board_codec import board_to_text, board_to_move_sequence
 
 
 class GameInfoExtractor:
@@ -14,8 +19,9 @@ class GameInfoExtractor:
             self._turn_section(),
             self._occupied_section(),
             self._board_section(),
+            self._move_sequence_section(),
             self._algorithm_section(),
-            self._own_skill_section(),
+            self._skill_window_section(),
             self._enemy_skill_section(),
         ]
         return "\n\n".join(filter(None, sections))
@@ -37,9 +43,9 @@ class GameInfoExtractor:
             for x in range(15):
                 if board.is_blocked(x, y):
                     blocked.append(f"{x},{y}")
-                elif board.get(x, y) == 'X':
+                elif board.is_black(x, y):
                     black.append(f"{x},{y}")
-                elif board.get(x, y) == 'O':
+                elif board.is_white(x, y):
                     white.append(f"{x},{y}")
         parts = []
         parts.append(f"X:{' '.join(black)}" if black else "X:无")
@@ -50,11 +56,15 @@ class GameInfoExtractor:
 
     def _board_section(self) -> str:
         blocked = {(p.x, p.y) for p in self.ctrl.board.get_blocked_positions()}
-        legend = "15x15, .=空 X=黑 O=白 *=封锁, 坐标x=列(0-14) y=行(0-14)"
+        legend = "15x15, .=空 X=黑(奇数) O=白(偶数) *=封锁"
         return legend + "\n" + board_to_text(self.ctrl.board.grid, blocked=blocked)
 
+    def _move_sequence_section(self) -> str:
+        """输出完整落子序列，Agent理解时间顺序和奇偶规则"""
+        return board_to_move_sequence(self.ctrl.board.grid) + "\n(奇数→黑 偶数→白 数字大=靠后)"
+
     def _algorithm_section(self) -> str:
-        """算法检测到的威胁分析，帮助 LLM 做出更准确的决策"""
+        """算法检测到的威胁分析"""
         try:
             from agent.algorithm import (
                 find_immediate_win, find_must_block,
@@ -72,29 +82,24 @@ class GameInfoExtractor:
 
         lines = ["【算法威胁分析】"]
 
-        # 己方必胜点
         own_win = find_immediate_win(grid, current, blocked)
         if own_win:
             lines.append(f"!!! 己方必胜点: {own_win} —— 落子即五连！")
 
-        # 对方必胜点 —— 必须堵
         opp_win = find_must_block(grid, opponent, blocked)
         if opp_win:
             lines.append(f"!!! 必须封堵: {opp_win} —— 对手落子即五连！")
 
-        # 对方已有活三 —— 必须封堵一端
         opp_existing_live3 = find_existing_live3_blocks(grid, opponent, blocked)
         if opp_existing_live3:
             pts = " ".join(str(p) for p in opp_existing_live3[:6])
-            lines.append(f"!!! 对手已有活三（三子连线+两端空），必须封堵一端: {pts}")
+            lines.append(f"!!! 对手已有活三，必须封堵一端: {pts}")
 
-        # 己方双重威胁
         own_double = find_double_threat_moves(grid, current, blocked)
         if own_double:
             pts = " ".join(str(p) for p in own_double[:5])
-            lines.append(f"己方双重威胁点（双活三/活三+冲四/活四）: {pts}")
+            lines.append(f"己方双重威胁点: {pts}")
 
-        # 对方威胁扫描
         opp_threats = scan_threats(grid, opponent, blocked)
         if opp_threats["live4_spots"]:
             pts = " ".join(str(p) for p in opp_threats["live4_spots"][:3])
@@ -109,7 +114,6 @@ class GameInfoExtractor:
             pts = " ".join(str(p) for p in opp_threats["live3_spots"][:5])
             lines.append(f"对手可形成活三的点: {pts}")
 
-        # 己方进攻机会
         own_threats = scan_threats(grid, current, blocked)
         if own_threats["live4_spots"]:
             pts = " ".join(str(p) for p in own_threats["live4_spots"][:3])
@@ -126,14 +130,35 @@ class GameInfoExtractor:
 
         return "\n".join(lines)
 
-    def _own_skill_section(self) -> str:
+    def _skill_window_section(self) -> str:
+        """生成技能使用窗口信息，帮助技能使用官判断是否使用"""
         skill = self.ctrl.current_player.skill
         if not skill:
             return ""
-        return f"己方: {skill.skill_name}({skill.description})"
+
+        lines = [f"【技能使用窗口】"]
+        lines.append(f"技能: {skill.skill_name}")
+        lines.append(f"效果: {skill.description}")
+
+        can_use = skill.can_activate(self.ctrl.current_player, self.ctrl.board,
+                                      self.ctrl._turn_count)
+        if hasattr(skill, '_used') and skill._used:
+            lines.append("状态: 已使用")
+        elif not can_use:
+            lines.append("状态: 未满足使用条件（回合数不足或其他限制）")
+        else:
+            lines.append("状态: 可以使用")
+
+        return "\n".join(lines)
+
+    def _enemy_skill_section(self) -> str:
+        skill = self.ctrl.opponent_player.skill
+        if not skill:
+            return ""
+        return f"敌方: {skill.skill_name}({skill.description})"
 
     def get_rag_context(self) -> str:
-        """获取 RAG 棋谱参考上下文（由 orchestrator 调用）"""
+        """获取 RAG 棋谱参考上下文"""
         try:
             from rag import get_retriever
             retriever = get_retriever()
@@ -143,9 +168,3 @@ class GameInfoExtractor:
         except Exception:
             pass
         return ""
-
-    def _enemy_skill_section(self) -> str:
-        skill = self.ctrl.opponent_player.skill
-        if not skill:
-            return ""
-        return f"敌方: {skill.skill_name}({skill.description})"

@@ -1,15 +1,18 @@
-"""万宁五子棋招式实现
+"""五子棋技能实现（10个主动技能）
 
-主动招式: 玩家点击按钮触发
-被动招式: 满足条件时自动触发
+全部为主动技能：每局限1次，必成功，在落子前使用。
+技能使用后立即生效，然后继续正常落子，回合切换。
 
-所有招式遵循"平衡弱化"原则: 数值压低，以正常五子棋对局逻辑为主。
+设计原则：
+  - 每个技能条件清晰，Agent从game_report中直接读到是否"值得使用"
+  - 效果"超自然"但不破坏五子棋基本规则（五连获胜）
 """
+
 from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 import random
 
-from ..core.constants import BOARD_SIZE, BLACK, WHITE, EMPTY
+from ..core.constants import BOARD_SIZE, BLACK, WHITE
 from ..core.models import SkillResult, Position
 from .base import Skill, SkillType
 
@@ -18,21 +21,20 @@ if TYPE_CHECKING:
 
 
 # ============================================================================
-# 主动招式（3个）
+# 技能1-3: 进攻档 —— 直接增强己方棋盘力量
 # ============================================================================
 
-class WanningFormation(Skill):
-    """万宁阵法：第5回合后可用，每局限一次，落子前在指定空位额外生成1子"""
+class ExtraStone(Skill):
+    """追加落子：在当前回合额外放置1子在任意空位"""
 
     def __init__(self):
-        super().__init__()
         self._used = False
 
     @property
-    def skill_name(self): return "万宁阵法"
+    def skill_name(self): return "追加落子"
 
     @property
-    def description(self): return "第5回合后可用，每局限一次，落子前在指定空位额外生成1子"
+    def description(self): return "第5回合起可用，每局限1次，在任意空位额外放置1子"
 
     @property
     def skill_type(self): return SkillType.ACTIVE
@@ -42,333 +44,346 @@ class WanningFormation(Skill):
 
     def activate(self, owner, opponent, board, turn_count, target=None):
         if target is None or not board.is_empty(target.x, target.y):
-            return SkillResult(message="万宁阵法：需要选择一个空位放置额外棋子")
-        board.place(target.x, target.y, owner.color, is_skill=True)
+            return SkillResult(message="追加落子：需要选择一个空位")
+        board.place(target.x, target.y, owner.color)
         self._used = True
         return SkillResult(
             extra_stones=[target],
-            message=f"万宁阵法发动！在({target.x},{target.y})额外生成1子"
+            message=f"追加落子：在{target}额外生成1子"
         )
 
 
-class BloodPrisonFormation(Skill):
-    """血狱影杀阵：每回合可尝试一次，10%概率在上一落子相邻格生成1子"""
+class CloneStone(Skill):
+    """复制己子：在己方1子的相邻4格空位中生成1颗同色子"""
 
     def __init__(self):
-        super().__init__()
-        self._last_attempted_turn = -1
-
-    @property
-    def skill_name(self): return "血狱影杀阵"
-
-    @property
-    def description(self): return "落子前使用，每回合一次，10%概率在上一落子相邻格生成1子"
-
-    @property
-    def skill_type(self): return SkillType.ACTIVE
-
-    def can_activate(self, owner, board, turn_count):
-        return turn_count != self._last_attempted_turn
-
-    def activate(self, owner, opponent, board, turn_count, target=None):
-        self._last_attempted_turn = turn_count
-        if random.random() > 0.1:
-            return SkillResult(message="血狱影杀阵触发失败（90%概率未命中）")
-        if target is None:
-            empty_positions = board.get_empty_positions()
-        else:
-            empty_positions = board.get_adjacent_empty(target.x, target.y)
-        if not empty_positions:
-            return SkillResult(message="血狱影杀阵：无可用相邻空位")
-        pos = random.choice(empty_positions)
-        board.place(pos.x, pos.y, owner.color, is_skill=True)
-        return SkillResult(
-            extra_stones=[pos],
-            message="血狱影杀阵发动！相邻1格生成1子"
-        )
-
-
-class FourDirectionsFormation(Skill):
-    """四方阵：每局限一次，落子前删除场上随机棋子"""
-
-    def __init__(self):
-        super().__init__()
         self._used = False
 
     @property
-    def skill_name(self): return "四方阵"
+    def skill_name(self): return "复制己子"
 
     @property
-    def description(self): return "每局限一次，落子前删除场上随机1颗棋子"
+    def description(self): return "第3回合起可用，每局限1次，选择己方1子在其相邻空位生成同色子"
 
     @property
     def skill_type(self): return SkillType.ACTIVE
 
     def can_activate(self, owner, board, turn_count):
-        return not self._used
+        return turn_count >= 3 and not self._used
 
     def activate(self, owner, opponent, board, turn_count, target=None):
-        all_stones = [Position(x, y) for y in range(BOARD_SIZE) for x in range(BOARD_SIZE)
-                      if board.get(x, y) != EMPTY]
-        if not all_stones:
-            return SkillResult(message="四方阵：场上无棋子可删除")
-        pos = random.choice(all_stones)
-        removed_color = board.get(pos.x, pos.y)
-        board.remove(pos.x, pos.y)
+        if target is None:
+            return SkillResult(message="复制己子：需要选择目标空位（必须是己方棋子相邻格）")
+        if not board.is_empty(target.x, target.y):
+            return SkillResult(message=f"复制己子：{target}不是空位")
+        # 检查相邻格是否有己方棋子
+        has_adjacent_own = False
+        for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
+            nx, ny = target.x + dx, target.y + dy
+            if board.is_valid(nx, ny) and board.get_color(nx, ny) == owner.color:
+                has_adjacent_own = True
+                break
+        if not has_adjacent_own:
+            return SkillResult(message=f"复制己子：{target}相邻4格内无己方棋子")
+        board.place(target.x, target.y, owner.color)
         self._used = True
         return SkillResult(
-            removed_stones=[pos],
-            message=f"四方阵发动！删除了({pos.x},{pos.y})的{removed_color}棋子"
+            extra_stones=[target],
+            message=f"复制己子：在{target}生成1子"
+        )
+
+
+class DoubleMove(Skill):
+    """连打两子：本回合连续落下2子（而不是正常的1子）"""
+
+    def __init__(self):
+        self._used = False
+
+    @property
+    def skill_name(self): return "连打两子"
+
+    @property
+    def description(self): return "第10回合起可用，每局限1次，本回合连续落下2子"
+
+    @property
+    def skill_type(self): return SkillType.ACTIVE
+
+    def can_activate(self, owner, board, turn_count):
+        return turn_count >= 10 and not self._used
+
+    def activate(self, owner, opponent, board, turn_count, target=None):
+        """连打两子：由调用方先后两次调用 place 落两个子。此处仅标记已使用。
+        实际落子由 controller 在技能激活后额外调用一次 place。
+        """
+        self._used = True
+        return SkillResult(
+            message="连打两子：请连续选择两个落子位置"
         )
 
 
 # ============================================================================
-# 被动招式（7个）
+# 技能4-7: 控制档 —— 削弱或限制对手
 # ============================================================================
 
-class ReturnOriginFormation(Skill):
-    """归元阵：自身连成4子时，额外生成1颗挡子"""
-
-    @property
-    def skill_name(self): return "归元阵"
-
-    @property
-    def description(self): return "被动：己方连成4子时自动生成1颗防守棋子"
-
-    @property
-    def skill_type(self): return SkillType.PASSIVE
-
-    def on_own_move(self, owner, opponent, board, move_pos, turn_count):
-        lines = board.find_lines(owner.color, 4)
-        if not lines:
-            return SkillResult()
-        empty_positions = board.get_empty_positions()
-        if not empty_positions:
-            return SkillResult()
-        pos = random.choice(empty_positions)
-        board.place(pos.x, pos.y, owner.color, is_skill=True)
-        return SkillResult(
-            extra_stones=[pos],
-            message="归元阵发动！连成4子，自动生成1颗防守棋子"
-        )
-
-
-class FiveThunderFormation(Skill):
-    """五雷阵：对手释放技能后，随机清除对方1颗技能生成子"""
-
-    @property
-    def skill_name(self): return "五雷阵"
-
-    @property
-    def description(self): return "被动：对手释放招式后随机清除其1颗技能生成子"
-
-    @property
-    def skill_type(self): return SkillType.PASSIVE
-
-    def on_opponent_skill(self, owner, opponent, board, turn_count):
-        removed = board.remove_random_skill_stone_of(opponent.color)
-        if removed is None:
-            return SkillResult(message="五雷阵：对方无技能生成子可清除")
-        return SkillResult(
-            removed_stones=[removed],
-            message=f"五雷阵发动！清除了对方的1颗技能生成子"
-        )
-
-
-class EightTrigramsFormation(Skill):
-    """八卦阵：每5回合有概率转换对方1颗边角子"""
-
-    @property
-    def skill_name(self): return "八卦阵"
-
-    @property
-    def description(self): return "被动：每5回合有概率转换对方1颗边角棋子"
-
-    @property
-    def skill_type(self): return SkillType.PASSIVE
-
-    def on_turn_end(self, owner, opponent, board, turn_count):
-        if turn_count <= 0 or turn_count % 5 != 0:
-            return SkillResult()
-        if random.random() > 0.4:
-            return SkillResult(message="八卦阵：本次未触发")
-        opponent_edge = [Position(x, y) for y in range(BOARD_SIZE) for x in range(BOARD_SIZE)
-                         if board.get(x, y) == opponent.color
-                         and (x <= 1 or x >= BOARD_SIZE - 2 or y <= 1 or y >= BOARD_SIZE - 2)]
-        if not opponent_edge:
-            return SkillResult(message="八卦阵：对方无边角棋子")
-        pos = random.choice(opponent_edge)
-        board.remove(pos.x, pos.y)
-        board.place(pos.x, pos.y, owner.color, is_skill=True)
-        return SkillResult(
-            message=f"八卦阵发动！转换了对方({pos.x},{pos.y})的棋子"
-        )
-
-
-class DragonTrapFormation(Skill):
-    """困龙阵：对手连续同一直线落子时，随机封锁1个空位"""
+class RemoveEnemy(Skill):
+    """移除敌子：删除对手任意1颗棋子"""
 
     def __init__(self):
-        super().__init__()
-        self._opponent_last_pos: Optional[Position] = None
+        self._used = False
 
     @property
-    def opponent_last_pos(self) -> Optional[Position]:
-        """供 Agent 查询对方上一步落子位置"""
-        return self._opponent_last_pos
+    def skill_name(self): return "移除敌子"
 
     @property
-    def skill_name(self): return "困龙阵"
+    def description(self): return "第3回合起可用，每局限1次，选择并移除对手1颗棋子"
 
     @property
-    def description(self): return "被动：对手连续同一直线落子时随机封锁1个空位"
+    def skill_type(self): return SkillType.ACTIVE
 
-    @property
-    def skill_type(self): return SkillType.PASSIVE
+    def can_activate(self, owner, board, turn_count):
+        return turn_count >= 3 and not self._used
 
-    def on_opponent_move(self, owner, opponent, board, move_pos, turn_count):
-        last = self._opponent_last_pos
-        self._opponent_last_pos = move_pos
-        if last is None:
-            return SkillResult()
-        if not board.is_same_line(last, move_pos):
-            return SkillResult()
-        direction = board.get_line_direction(last, move_pos)
-        if direction is None:
-            return SkillResult()
-        candidates = board.get_empty_on_line(move_pos, direction)
-        if not candidates:
-            return SkillResult()
-        pos = random.choice(candidates)
-        board.block(pos.x, pos.y)
+    def activate(self, owner, opponent, board, turn_count, target=None):
+        if target is None:
+            return SkillResult(message="移除敌子：需要选择对手1颗棋子作为目标")
+        if not board.is_valid(target.x, target.y):
+            return SkillResult(message=f"移除敌子：{target}坐标非法")
+        if board.get_color(target.x, target.y) != opponent.color:
+            return SkillResult(message=f"移除敌子：{target}不是对手棋子")
+        board.remove(target.x, target.y)
+        self._used = True
         return SkillResult(
-            blocked_positions=[pos],
-            message=f"困龙阵发动！封锁了({pos.x},{pos.y})空位"
+            removed_stones=[target],
+            message=f"移除敌子：删除了对手在{target}的棋子"
         )
 
 
-class ExtinctionFormation(Skill):
-    """绝户阵：对方技能生成子上限3颗"""
-
-    @property
-    def skill_name(self): return "绝户阵"
-
-    @property
-    def description(self): return "被动：对方场上最多保留3颗技能生成子"
-
-    @property
-    def skill_type(self): return SkillType.PASSIVE
-
-    def on_opponent_move(self, owner, opponent, board, move_pos, turn_count):
-        return self._enforce_limit(owner, opponent, board)
-
-    def on_opponent_skill(self, owner, opponent, board, turn_count):
-        return self._enforce_limit(owner, opponent, board)
-
-    def _enforce_limit(self, owner, opponent, board):
-        over = board.count_skill_stones_of(opponent.color) - 3
-        if over <= 0:
-            return SkillResult()
-        removed_list = []
-        for _ in range(over):
-            removed = board.remove_random_skill_stone_of(opponent.color)
-            if removed:
-                removed_list.append(removed)
-        if removed_list:
-            return SkillResult(
-                removed_stones=removed_list,
-                message=f"绝户阵发动！对方技能生成子超出上限，清除了{len(removed_list)}颗"
-            )
-        return SkillResult()
-
-
-class EnemyFirstStrike(Skill):
-    """克敌先机：对手连成4子时，随机补1颗卡位子"""
-
-    @property
-    def skill_name(self): return "克敌先机"
-
-    @property
-    def description(self): return "被动：对手连成4子时自动补1颗防守棋子"
-
-    @property
-    def skill_type(self): return SkillType.PASSIVE
-
-    def on_opponent_move(self, owner, opponent, board, move_pos, turn_count):
-        lines = board.find_lines(opponent.color, 4)
-        if not lines:
-            return SkillResult()
-        candidates = []
-        for line in lines:
-            for pos in line:
-                for dx, dy in [(1, 0), (0, 1), (1, 1), (1, -1)]:
-                    head = Position(line[-1].x + dx, line[-1].y + dy)
-                    tail = Position(line[0].x - dx, line[0].y - dy)
-                    for p in [head, tail]:
-                        if p.is_valid() and board.is_empty(p.x, p.y):
-                            candidates.append(p)
-        if not candidates:
-            candidates = board.get_empty_positions()
-        if not candidates:
-            return SkillResult()
-        pos = random.choice(candidates)
-        board.place(pos.x, pos.y, owner.color, is_skill=True)
-        return SkillResult(
-            extra_stones=[pos],
-            message="克敌先机发动！对手快赢了，自动补1颗卡位子"
-        )
-
-
-class PlumBlossomFormation(Skill):
-    """梅花阵：每4回合生成1颗花苞（仅格挡1次）"""
+class ConvertStone(Skill):
+    """转化棋子：将对手1子变为己方颜色"""
 
     def __init__(self):
-        super().__init__()
-        self._bud_position: Optional[Position] = None
+        self._used = False
 
     @property
-    def bud_position(self) -> Optional[Position]:
-        """供 Agent 查询当前花苞位置"""
-        return self._bud_position
+    def skill_name(self): return "转化棋子"
 
     @property
-    def skill_name(self): return "梅花阵"
+    def description(self): return "第8回合起可用，每局限1次，将对手1颗棋子变为己方颜色"
 
     @property
-    def description(self): return "被动：每4回合生成1颗花苞，可格挡对方1次落子"
+    def skill_type(self): return SkillType.ACTIVE
 
-    @property
-    def skill_type(self): return SkillType.PASSIVE
+    def can_activate(self, owner, board, turn_count):
+        return turn_count >= 8 and not self._used
 
-    def on_turn_end(self, owner, opponent, board, turn_count):
-        if turn_count <= 0 or turn_count % 4 != 0:
-            return SkillResult()
-
-        # 每4回合清除旧花苞，生成新花苞
-        if self._bud_position:
-            board.unblock(self._bud_position.x, self._bud_position.y)
-            self._bud_position = None
-
-        empty_positions = [p for p in board.get_empty_positions()
-                          if not board.is_blocked(p.x, p.y)]
-        if not empty_positions:
-            return SkillResult()
-        self._bud_position = random.choice(empty_positions)
-        board.block(self._bud_position.x, self._bud_position.y)
+    def activate(self, owner, opponent, board, turn_count, target=None):
+        if target is None:
+            return SkillResult(message="转化棋子：需要选择对手1颗棋子")
+        if not board.is_valid(target.x, target.y):
+            return SkillResult(message=f"转化棋子：{target}坐标非法")
+        if board.get_color(target.x, target.y) != opponent.color:
+            return SkillResult(message=f"转化棋子：{target}不是对手棋子")
+        # 移除对手子，再以己方颜色放回（保持位置）
+        board.remove(target.x, target.y)
+        board.place(target.x, target.y, owner.color)
+        self._used = True
         return SkillResult(
-            blocked_positions=[self._bud_position],
-            message=f"梅花阵：生成了1颗花苞在({self._bud_position.x},{self._bud_position.y})，将格挡对方1次落子"
+            message=f"转化棋子：将对手在{target}的棋子变为己方"
         )
 
-    def on_opponent_move(self, owner, opponent, board, move_pos, turn_count):
-        if not self._bud_position:
-            return SkillResult()
-        if move_pos.x == self._bud_position.x and move_pos.y == self._bud_position.y:
-            # 对手踩中花苞——在控制器中已通过 is_empty 拦截，此处兜底清理
-            board.unblock(self._bud_position.x, self._bud_position.y)
-            self._bud_position = None
-            return SkillResult(message="梅花阵：花苞格挡了对方落子！")
-        return SkillResult()
+
+class BlockPosition(Skill):
+    """封禁空位：标记1个空位，对手下1回合不能落此位"""
+
+    def __init__(self):
+        self._used = False
+
+    @property
+    def skill_name(self): return "封禁空位"
+
+    @property
+    def description(self): return "第3回合起可用，每局限1次，封锁1空位（格挡对手1回合）"
+
+    @property
+    def skill_type(self): return SkillType.ACTIVE
+
+    def can_activate(self, owner, board, turn_count):
+        return turn_count >= 3 and not self._used
+
+    def activate(self, owner, opponent, board, turn_count, target=None):
+        if target is None:
+            return SkillResult(message="封禁空位：需要选择一个空位")
+        if not board.is_valid(target.x, target.y):
+            return SkillResult(message=f"封禁空位：{target}坐标非法")
+        if not board.is_empty(target.x, target.y):
+            return SkillResult(message=f"封禁空位：{target}不是空位")
+        board.block(target.x, target.y)
+        self._used = True
+        return SkillResult(
+            blocked_positions=[target],
+            message=f"封禁空位：封锁{target}，对手下回合不可落此位"
+        )
+
+
+class SkipOpponent(Skill):
+    """强制跳过：对手跳过下个回合"""
+
+    def __init__(self):
+        self._used = False
+
+    @property
+    def skill_name(self): return "强制跳过"
+
+    @property
+    def description(self): return "第8回合起可用，每局限1次，对手跳过下个回合"
+
+    @property
+    def skill_type(self): return SkillType.ACTIVE
+
+    def can_activate(self, owner, board, turn_count):
+        return turn_count >= 8 and not self._used
+
+    def activate(self, owner, opponent, board, turn_count, target=None):
+        """由 controller 处理：标记 skip_opponent_next_turn = True"""
+        self._used = True
+        return SkillResult(
+            message="强制跳过：对手将跳过下个回合"
+        )
+
+
+# ============================================================================
+# 技能8-10: 技巧档 —— 调整已有棋子
+# ============================================================================
+
+class ShiftOwnStone(Skill):
+    """移位己子：将己方1子移动到相邻8格内的任意空位"""
+
+    def __init__(self):
+        self._used = False
+
+    @property
+    def skill_name(self): return "移位己子"
+
+    @property
+    def description(self): return "第3回合起可用，每局限1次，将己方1子移动到相邻空位"
+
+    @property
+    def skill_type(self): return SkillType.ACTIVE
+
+    def can_activate(self, owner, board, turn_count):
+        return turn_count >= 3 and not self._used
+
+    def activate(self, owner, opponent, board, turn_count, target=None):
+        """需要两个参数：source(己方棋子) 和 target(目标空位)"""
+        # target 是第一参数（新位置）
+        if target is None:
+            return SkillResult(message="移位己子：需要选择目标空位（相邻8格内的己方棋子会自动识别）")
+
+        if not board.is_empty(target.x, target.y):
+            return SkillResult(message=f"移位己子：{target}不是空位")
+
+        # 在相邻8格中找己方棋子
+        source = None
+        for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0),
+                       (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            sx, sy = target.x + dx, target.y + dy
+            if board.is_valid(sx, sy) and board.get_color(sx, sy) == owner.color:
+                source = Position(sx, sy)
+                break
+
+        if source is None:
+            return SkillResult(message=f"移位己子：{target}相邻8格内无己方棋子可移动")
+
+        board.remove(source.x, source.y)
+        board.place(target.x, target.y, owner.color)
+        self._used = True
+        return SkillResult(
+            message=f"移位己子：将{source}的棋子移到{target}"
+        )
+
+
+class SwapStones(Skill):
+    """交换棋子：交换己方1子与对手1子的位置"""
+
+    def __init__(self):
+        self._used = False
+
+    @property
+    def skill_name(self): return "交换棋子"
+
+    @property
+    def description(self): return "第8回合起可用，每局限1次，交换己方1子与对手1子的位置"
+
+    @property
+    def skill_type(self): return SkillType.ACTIVE
+
+    def can_activate(self, owner, board, turn_count):
+        return turn_count >= 8 and not self._used
+
+    def activate(self, owner, opponent, board, turn_count, target=None):
+        """target 是己方棋子位置；在相邻或附近搜索对手棋子交换"""
+        if target is None:
+            return SkillResult(message="交换棋子：需要选择己方1颗棋子")
+        if not board.is_valid(target.x, target.y):
+            return SkillResult(message=f"交换棋子：{target}坐标非法")
+        if board.get_color(target.x, target.y) != owner.color:
+            return SkillResult(message=f"交换棋子：{target}不是己方棋子")
+
+        # 搜索附近的对手棋子（优先同方向上最近的）
+        opponent_target = None
+        for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0),
+                       (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            nx, ny = target.x + dx, target.y + dy
+            if board.is_valid(nx, ny) and board.get_color(nx, ny) == opponent.color:
+                opponent_target = Position(nx, ny)
+                break
+
+        if opponent_target is None:
+            return SkillResult(message=f"交换棋子：{target}相邻无对手棋子可交换")
+
+        # 执行交换：移除→各自以对方颜色重新落子
+        board.remove(target.x, target.y)
+        board.remove(opponent_target.x, opponent_target.y)
+        board.place(target.x, target.y, opponent.color)
+        board.place(opponent_target.x, opponent_target.y, owner.color)
+        self._used = True
+        return SkillResult(
+            message=f"交换棋子：交换了{target}(己)与{opponent_target}(敌)的位置"
+        )
+
+
+class RetractMove(Skill):
+    """回溯落子：撤销自己上一步落子，重新选择落子位置"""
+
+    def __init__(self):
+        self._used = False
+
+    @property
+    def skill_name(self): return "回溯落子"
+
+    @property
+    def description(self): return "第5回合起可用，每局限1次，撤销自己上一步落子"
+
+    @property
+    def skill_type(self): return SkillType.ACTIVE
+
+    def can_activate(self, owner, board, turn_count):
+        return turn_count >= 5 and not self._used
+
+    def activate(self, owner, opponent, board, turn_count, target=None):
+        """target 是上一步自己的落子位置（由 controller 传入）"""
+        if target is None:
+            return SkillResult(message="回溯落子：需要指定上一步的落子位置")
+        if not board.is_valid(target.x, target.y):
+            return SkillResult(message=f"回溯落子：{target}坐标非法")
+        if board.get_color(target.x, target.y) != owner.color:
+            return SkillResult(message=f"回溯落子：{target}不是己方棋子，可能不是上一步")
+        board.remove(target.x, target.y)
+        self._used = True
+        return SkillResult(
+            removed_stones=[target],
+            message=f"回溯落子：撤销了{target}的落子，请重新选择位置"
+        )
 
 
 # ============================================================================
@@ -376,16 +391,16 @@ class PlumBlossomFormation(Skill):
 # ============================================================================
 
 ALL_SKILLS: list[type[Skill]] = [
-    WanningFormation,
-    ReturnOriginFormation,
-    FiveThunderFormation,
-    EightTrigramsFormation,
-    BloodPrisonFormation,
-    FourDirectionsFormation,
-    DragonTrapFormation,
-    ExtinctionFormation,
-    EnemyFirstStrike,
-    PlumBlossomFormation,
+    ExtraStone,
+    CloneStone,
+    DoubleMove,
+    RemoveEnemy,
+    ConvertStone,
+    BlockPosition,
+    SkipOpponent,
+    ShiftOwnStone,
+    SwapStones,
+    RetractMove,
 ]
 
 

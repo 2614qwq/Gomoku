@@ -1,19 +1,28 @@
-"""Minimax + Alpha-Beta 剪枝搜索 —— 为 AI 提供算法级决策支持"""
+"""Minimax + Alpha-Beta 剪枝搜索 —— 为 AI 提供算法级决策支持
+
+grid 为 int 网格: 0=空, 奇数=黑(X), 偶数=白(O)
+搜索时使用 1(模拟黑) / 2(模拟白) 作为临时标记，保持奇偶正确。
+"""
 
 from __future__ import annotations
 import time
-from .pattern import extract_patterns, DIRECTIONS, BOARD_SIZE
+from .pattern import extract_patterns, _is_own, DIRECTIONS, BOARD_SIZE
 from .evaluate import evaluate_board, score_position
 
 INF = 10_000_000
 WIN_SCORE = 1_000_000
 
 
+def _simulation_value(player: str) -> int:
+    """返回 player 在搜索模拟中使用的临时 int 值（1=黑奇数, 2=白偶数）"""
+    return 1 if player == 'X' else 2
+
+
 def get_best_move(grid, ai_symbol, blocked=None, depth=2, time_limit=0.3):
     """Minimax + Alpha-Beta 搜索最佳落子
 
     Args:
-        grid: 15x15 二维数组
+        grid: 15x15 int 二维数组
         ai_symbol: AI 的棋子符号 ('X' 或 'O')
         blocked: 封锁位置集合
         depth: 搜索深度（默认2，越大越强但越慢）
@@ -37,23 +46,23 @@ def get_best_move(grid, ai_symbol, blocked=None, depth=2, time_limit=0.3):
     beta = INF
     start_time = time.time()
 
-    # 候选排序：按快速评估降序（最大化剪枝效率）
     candidates.sort(
         key=lambda m: score_position(grid, m[0], m[1], ai_symbol, blocked)
         + score_position(grid, m[0], m[1], opponent, blocked),
         reverse=True,
     )
 
+    sim_val = _simulation_value(ai_symbol)
+
     for x, y in candidates:
-        # 先检查是否直接获胜
         p = extract_patterns(grid, x, y, ai_symbol, blocked)
         if p["win"] > 0:
             return (x, y)
 
-        grid[y][x] = ai_symbol
+        grid[y][x] = sim_val
         score = _minimax(grid, depth - 1, alpha, beta, False,
                          ai_symbol, opponent, blocked, start_time, time_limit)
-        grid[y][x] = ' '
+        grid[y][x] = 0
 
         if score > best_score:
             best_score = score
@@ -69,17 +78,15 @@ def get_best_move(grid, ai_symbol, blocked=None, depth=2, time_limit=0.3):
 def _minimax(grid, depth, alpha, beta, maximizing, ai_symbol, opponent,
              blocked, start_time, time_limit):
     """Alpha-Beta 剪枝递归搜索"""
-    # 超时检查
     if time.time() - start_time > time_limit:
         return evaluate_board(grid, ai_symbol, blocked)
 
-    # 终止条件
     if depth == 0:
         return evaluate_board(grid, ai_symbol, blocked)
 
     current_player = ai_symbol if maximizing else opponent
+    sim_val = _simulation_value(current_player)
 
-    # 检查当前玩家是否有立即获胜的落子
     candidates = _get_candidates(grid, blocked)
     if not candidates:
         return evaluate_board(grid, ai_symbol, blocked)
@@ -91,11 +98,11 @@ def _minimax(grid, depth, alpha, beta, maximizing, ai_symbol, opponent,
             if p["win"] > 0:
                 return WIN_SCORE * (depth + 1)
 
-            grid[y][x] = current_player
+            grid[y][x] = sim_val
             eval_score = _minimax(grid, depth - 1, alpha, beta, False,
                                   ai_symbol, opponent, blocked,
                                   start_time, time_limit)
-            grid[y][x] = ' '
+            grid[y][x] = 0
 
             max_eval = max(max_eval, eval_score)
             alpha = max(alpha, eval_score)
@@ -111,11 +118,11 @@ def _minimax(grid, depth, alpha, beta, maximizing, ai_symbol, opponent,
             if p["win"] > 0:
                 return -WIN_SCORE * (depth + 1)
 
-            grid[y][x] = current_player
+            grid[y][x] = sim_val
             eval_score = _minimax(grid, depth - 1, alpha, beta, True,
                                   ai_symbol, opponent, blocked,
                                   start_time, time_limit)
-            grid[y][x] = ' '
+            grid[y][x] = 0
 
             min_eval = min(min_eval, eval_score)
             beta = min(beta, eval_score)
@@ -132,13 +139,13 @@ def _get_candidates(grid, blocked):
     has_stones = False
     for y in range(BOARD_SIZE):
         for x in range(BOARD_SIZE):
-            if grid[y][x] in ('X', 'O'):
+            if grid[y][x] != 0:
                 has_stones = True
                 for dy in range(-2, 3):
                     for dx in range(-2, 3):
                         nx, ny = x + dx, y + dy
                         if (0 <= nx < BOARD_SIZE and 0 <= ny < BOARD_SIZE
-                                and grid[ny][nx] in (' ', '.')
+                                and grid[ny][nx] == 0
                                 and (nx, ny) not in blocked):
                             candidates.add((nx, ny))
     if not has_stones:

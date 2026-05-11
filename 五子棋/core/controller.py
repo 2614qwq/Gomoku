@@ -1,27 +1,28 @@
 """游戏控制器 —— 管理游戏状态、流程、招式触发
 
 职责：
-  - 棋盘状态管理
+  - 棋盘状态管理（int 网格）
   - 回合流转
-  - 招式分配与触发调度
+  - 主动技能：分配、激活、执行
   - 游戏结束判定
 """
+
 from __future__ import annotations
 from enum import Enum, auto
 from typing import Optional, Callable
 import random
 
-from .constants import BLACK, WHITE, EMPTY
+from .constants import BLACK, WHITE
 from .models import Board, Player, Position, SkillResult
 from agent.logger import get_logger
 
 _log = get_logger("controller")
-from ..skills import Skill, SkillType, random_skill, WanningFormation
+from ..skills import Skill, SkillType, random_skill
 
 
 class GameState(Enum):
     NORMAL = auto()            # 正常落子
-    SKILL_TARGETING = auto()   # 等待技能目标位置
+    SKILL_TARGETING = auto()   # 等待技能目标选择（需要选坐标的技能）
     GAME_OVER = auto()         # 游戏结束
 
 
@@ -30,10 +31,9 @@ class GameController:
 
     Usage:
         ctrl = GameController()
-        ctrl.on_skill_activate = lambda: ...    # 设置回调
-        ctrl.on_state_changed = lambda: ...     # 状态变更回调
+        ctrl.on_state_changed = lambda: ...
         ctrl.start_new_game()
-        ctrl.handle_click(x, y)                 # 处理棋盘点击
+        ctrl.handle_click(x, y)
     """
 
     def __init__(self):
@@ -44,17 +44,22 @@ class GameController:
         self._turn = 0          # 0=黑, 1=白
         self._turn_count = 0    # 总回合数
         self._state = GameState.GAME_OVER
-        self._pending_skill: Optional[Skill] = None  # 等待选择目标的主动招式
+        self._pending_skill: Optional[Skill] = None  # 等待选择目标的主动技能
+        self._pending_skill_args: Optional[dict] = None  # 技能所需的额外参数
         self._last_move_pos: Optional[Position] = None  # 上一步落子位置
         self._game_mode = 0     # 0=双人, 1=人机(黑), 2=人机(白), 3=AIvsAI
         self._ai_enabled = False
         self._orchestrator = None  # 延迟加载
+        self._skip_next_opponent_turn = False  # 强制跳过对手回合
+        self._double_move_active = False  # 连打两子激活中
+        self._double_move_count = 0  # 连打两子已落子数
+        self._own_last_move_pos: Optional[Position] = None  # 己方上一步（供回溯落子用）
 
         # 回调
         self.on_state_changed: Optional[Callable] = None
         self.on_skill_triggered: Optional[Callable[[str, str], None]] = None
         self.on_game_over: Optional[Callable[[str], None]] = None
-        self.on_ai_analysis: Optional[Callable[[dict], None]] = None  # AI 分析结果回调
+        self.on_ai_analysis: Optional[Callable[[dict], None]] = None
 
     # ================== 属性 ==================
 
@@ -95,7 +100,6 @@ class GameController:
     # ================== AI 接口 ==================
 
     def enable_ai(self):
-        """启用多智能体系统"""
         self._ai_enabled = True
         if self._orchestrator is None:
             from agent import MultiAgentOrchestrator
@@ -113,11 +117,7 @@ class GameController:
         return self._orchestrator
 
     def trigger_ai_move(self) -> Optional[dict]:
-        """触发 AI 落子。返回 {"result": ..., "analysis": ...} 或 None。
-
-        在 game_window 的后台线程中调用。
-        analysis 数据由 UI 线程处理（避免 tkinter 线程安全问题）。
-        """
+        """触发 AI 落子。返回 {"result": ..., "analysis": ...} 或 None。"""
         if not self._ai_enabled or self._orchestrator is None:
             return None
         if self._state == GameState.GAME_OVER:
@@ -134,7 +134,6 @@ class GameController:
 
         result = self.handle_click(x, y)
 
-        # AI 决定激活技能（通过 tool-calling）
         if decision.activate_skill and result is None:
             skill_result = self._execute_ai_skill(decision.activate_skill)
             if skill_result:
@@ -143,22 +142,15 @@ class GameController:
         return {"result": result, "analysis": analysis}
 
     def _execute_ai_skill(self, activate: dict) -> Optional[str]:
-        """执行 AI 决定的技能激活
-
-        Args:
-            activate: {"name": "activate_skill", "args": {"x": 7, "y": 8} | {}}
-
-        Returns:
-            技能执行结果消息或 None
-        """
+        """执行 AI 决定的技能激活"""
         player = self.current_player
         skill = player.skill
-        if skill is None or skill.skill_type != SkillType.ACTIVE:
+        if skill is None:
             return None
         if not skill.can_activate(player, self.board, self._turn_count):
             return None
 
-        from 五子棋.core.models import Position
+        from ..五子棋.core.models import Position
         args = activate.get("args", {})
         target = None
         if "x" in args and "y" in args:
@@ -170,15 +162,13 @@ class GameController:
 
         if result and result.message:
             _log.info(f"AI 技能执行: {result.message}")
-
-        # 触发对手被动反应
-        self._trigger_reactions_to_skill()
+            self._apply_result(result, player)
 
         self._notify_state_changed()
         return result.message if result else None
 
     def handle_human_question(self, question: str) -> dict:
-        """处理人类反问，返回 AI 的重新分析结果"""
+        """处理人类反问"""
         if not self._ai_enabled or self._orchestrator is None:
             return {"error": "AI 未启用"}
         decision = self._orchestrator.analyze(self, human_question=question)
@@ -189,14 +179,7 @@ class GameController:
         }
 
     def request_ai_hint(self) -> Optional[dict]:
-        """为当前人类玩家请求 AI 提示（不实际落子）
-
-        由人类玩家在技能窗口点击"AI提示"按钮触发。
-        多智能体分析当前局面后返回建议，最终决策由人类做出。
-
-        Returns:
-            {"move": (x,y), "reason": str, "summaries": dict} 或 None
-        """
+        """为人类玩家请求 AI 提示（不实际落子）"""
         if not self._ai_enabled or self._orchestrator is None:
             return None
         if self._state == GameState.GAME_OVER:
@@ -211,18 +194,22 @@ class GameController:
     # ================== 游戏流程 ==================
 
     def start_new_game(self):
-        """开始新游戏：重置棋盘、随机分配招式"""
+        """开始新游戏"""
         self.board.reset()
         self._turn = 0
         self._turn_count = 0
         self._state = GameState.NORMAL
         self._pending_skill = None
+        self._pending_skill_args = None
         self._last_move_pos = None
+        self._own_last_move_pos = None
+        self._skip_next_opponent_turn = False
+        self._double_move_active = False
+        self._double_move_count = 0
 
-        # 随机分配招式
+        # 随机分配技能（双方不同）
         self.black_player.skill = random_skill()
         self.white_player.skill = random_skill()
-        # 确保双方招式不同
         while self.white_player.skill.__class__ == self.black_player.skill.__class__:
             self.white_player.skill = random_skill()
 
@@ -243,7 +230,7 @@ class GameController:
         return self._handle_normal_move(x, y)
 
     def activate_skill(self) -> Optional[str]:
-        """激活当前玩家的主动招式（由技能窗口按钮触发）
+        """激活当前玩家的主动技能（由技能面板按钮触发）
 
         Returns:
             错误消息或 None
@@ -253,63 +240,73 @@ class GameController:
 
         player = self.current_player
         skill = player.skill
-        if skill is None or skill.skill_type != SkillType.ACTIVE:
-            return "没有可用的主动招式"
+        if skill is None:
+            return "没有可用的招式"
 
         if not skill.can_activate(player, self.board, self._turn_count):
-            return "招式尚未冷却完毕"
+            return "招式不可用（已使用或回合不足）"
 
-        # 需要选择目标的招式（如万宁阵法）进入瞄准模式
-        if self._needs_target(skill):
+        name = skill.skill_name
+
+        # 需要坐标参数的技能 → 进入瞄准模式
+        if name in ("追加落子", "移除敌子", "转化棋子", "封禁空位",
+                     "复制己子", "移位己子", "交换棋子"):
             self._state = GameState.SKILL_TARGETING
             self._pending_skill = skill
             self._notify_state_changed()
             return None
 
-        # 不需要目标的招式直接执行，传入上一步落子位置作为锚点
+        # 无参数技能 → 直接执行
         result = skill.activate(player, self.opponent_player, self.board,
-                               self._turn_count, target=self._last_move_pos)
-        self._apply_result(result, self.current_player)
+                                self._turn_count)
+        self._apply_result(result, player)
 
-        # 触发对手被动：对方释放技能后
-        self._trigger_reactions_to_skill()
+        # 连打两子：标记激活
+        if name == "连打两子":
+            self._double_move_active = True
+            self._double_move_count = 0
+
+        # 强制跳过：标记跳过
+        if name == "强制跳过":
+            self._skip_next_opponent_turn = True
+
+        # 回溯落子：已撤销上一步，需要重新落子
+        if name == "回溯落子":
+            if self._own_last_move_pos:
+                result = skill.activate(player, self.opponent_player, self.board,
+                                        self._turn_count, target=self._own_last_move_pos)
+                self._apply_result(result, player)
+                # 回合不切换，玩家重新选位落子
+                self._notify_state_changed()
+                return None
 
         self._notify_state_changed()
         return None
-
-    def _trigger_reactions_to_skill(self):
-        """触发对手对技能释放的反应（五雷阵、绝户阵等）"""
-        opponent = self.opponent_player
-        player = self.current_player
-        if opponent.skill:
-            reaction = opponent.skill.on_opponent_skill(opponent, player, self.board, self._turn_count)
-            self._apply_result(reaction, opponent)
-        # 绝户阵限制
-        if opponent.skill:
-            limit_result = self._check_extinction_limit(opponent, player)
-            self._apply_result(limit_result, opponent)
 
     # ================== 内部处理 ==================
 
     def _handle_normal_move(self, x: int, y: int) -> Optional[str]:
         """处理正常落子"""
         player = self.current_player
-        opponent = self.opponent_player
 
         if not self.board.is_empty(x, y):
             return None
 
-        # 执行落子
-        self.board.place(x, y, player.color, is_skill=False)
+        # 落子（place 返回新序号）
+        seq = self.board.place(x, y, player.color)
+        if seq == 0:
+            return None  # 落子失败
+
         self._turn_count += 1
         move_pos = Position(x, y)
         self._last_move_pos = move_pos
+        self._own_last_move_pos = move_pos
 
         # 检查胜负
         if self.board.check_win(player.color):
             self._state = GameState.GAME_OVER
             self._notify_state_changed()
-            msg = f"{player.name}获胜！🎉"
+            msg = f"{player.name}获胜！"
             if self.on_game_over:
                 self.on_game_over(msg)
             return msg
@@ -317,38 +314,35 @@ class GameController:
         if self.board.is_full():
             self._state = GameState.GAME_OVER
             self._notify_state_changed()
-            msg = "平局！🤝"
+            msg = "平局！"
             if self.on_game_over:
                 self.on_game_over(msg)
             return msg
 
-        # 被动招式：己方落子后
-        self._trigger_passive_on_own_move(player, opponent, move_pos)
+        # 连打两子处理
+        if self._double_move_active:
+            self._double_move_count += 1
+            if self._double_move_count < 2:
+                # 还需要再落1子
+                self._notify_state_changed()
+                return None
+            else:
+                # 落完2子，恢复正常
+                self._double_move_active = False
+                self._double_move_count = 0
 
-        # 被动招式：对方落子后（以对手视角）
-        self._trigger_passive_on_opponent_move(opponent, player, move_pos)
+        # 回合切换
+        if self._skip_next_opponent_turn:
+            self._skip_next_opponent_turn = False
+            # 对手跳过，本方再走一轮
+        else:
+            self._turn = 1 - self._turn
 
-        # 被动招式：回合结束
-        self._trigger_passive_on_turn_end(player, opponent)
-        self._trigger_passive_on_turn_end(opponent, player)
-
-        # 切换回合
-        self._turn = 1 - self._turn
         self._notify_state_changed()
-
-        # 重新检查胜负（被动招式可能改变了棋盘）
-        if self.board.check_win(self.current_player.color):
-            self._state = GameState.GAME_OVER
-            self._notify_state_changed()
-            msg = f"{self.current_player.name}获胜！🎉"
-            if self.on_game_over:
-                self.on_game_over(msg)
-            return msg
-
         return None
 
     def _handle_skill_target(self, x: int, y: int) -> Optional[str]:
-        """处理招式目标选择"""
+        """处理技能目标选择（进入 SKILL_TARGETING 状态后点击棋盘）"""
         skill = self._pending_skill
         self._pending_skill = None
         self._state = GameState.NORMAL
@@ -359,89 +353,56 @@ class GameController:
         player = self.current_player
         opponent = self.opponent_player
 
-        # 验证目标位置
-        if not self.board.is_valid(x, y):
-            self._notify_state_changed()
-            return None
-
         target = Position(x, y)
 
-        result = skill.activate(player, opponent, self.board, self._turn_count, target=target)
+        result = skill.activate(player, opponent, self.board,
+                                self._turn_count, target=target)
         self._apply_result(result, player)
 
-        # 触发对手对技能释放的反应
-        self._trigger_reactions_to_skill()
+        # 连打两子标记
+        if skill.skill_name == "连打两子":
+            self._double_move_active = True
+            self._double_move_count = 0
+
+        # 强制跳过标记
+        if skill.skill_name == "强制跳过":
+            self._skip_next_opponent_turn = True
 
         self._notify_state_changed()
         return None
 
-    def _trigger_passive_on_own_move(self, player: Player, opponent: Player, move_pos: Position):
-        """触发己方落子后的被动招式"""
-        if player.skill:
-            result = player.skill.on_own_move(player, opponent, self.board, move_pos, self._turn_count)
-            self._apply_result(result, player)
-        # 绝户阵：对手回合后检查限制
-        if opponent.skill:
-            result = self._check_extinction_limit(opponent, player)
-            self._apply_result(result, opponent)
-
-    def _trigger_passive_on_opponent_move(self, player: Player, opponent: Player, move_pos: Position):
-        """以 player 视角：对手落子后触发的被动"""
-        if player.skill:
-            result = player.skill.on_opponent_move(player, opponent, self.board, move_pos, self._turn_count)
-            self._apply_result(result, player)
-
-    def _trigger_passive_on_turn_end(self, player: Player, opponent: Player):
-        """回合结束时触发的被动"""
-        if player.skill:
-            result = player.skill.on_turn_end(player, opponent, self.board, self._turn_count)
-            self._apply_result(result, player)
-
-    def _check_extinction_limit(self, owner: Player, opponent: Player) -> SkillResult:
-        """绝户阵限制检查"""
-        from ..skills import ExtinctionFormation
-        if isinstance(owner.skill, ExtinctionFormation):
-            over = self.board.count_skill_stones_of(opponent.color) - 3
-            if over > 0:
-                removed_list = []
-                for _ in range(over):
-                    removed = self.board.remove_random_skill_stone_of(opponent.color)
-                    if removed:
-                        removed_list.append(removed)
-                if removed_list:
-                    return SkillResult(
-                        removed_stones=removed_list,
-                        message=f"绝户阵发动！对方技能生成子超出上限，清除了{len(removed_list)}颗"
-                    )
-        return SkillResult()
-
     def _apply_result(self, result: SkillResult, triggering_player: Player):
-        """应用招式结果并通知 UI"""
+        """应用技能结果并通知 UI"""
         if not result.message:
             return
         if self.on_skill_triggered:
             self.on_skill_triggered(triggering_player.name, result.message)
 
     def _needs_target(self, skill: Skill) -> bool:
-        """判断招式是否需要选择目标位置（万宁阵法需要手动选位）"""
-        return isinstance(skill, WanningFormation)
+        """判断技能是否需要选择目标坐标"""
+        return skill.skill_name in (
+            "追加落子", "移除敌子", "转化棋子", "封禁空位",
+            "复制己子", "移位己子", "交换棋子",
+        )
 
     def _notify_state_changed(self):
         if self.on_state_changed:
             self.on_state_changed()
 
-    # ================== 招式面板数据 ==================
+    # ================== 技能面板数据 ==================
 
     def get_current_skill_info(self) -> dict:
-        """获取当前玩家的招式信息（供技能窗口使用）"""
+        """获取当前玩家的技能信息（供技能窗口使用）"""
         player = self.current_player
         skill = player.skill
         can_use = False
-        if skill and skill.skill_type == SkillType.ACTIVE:
+        if skill:
             can_use = skill.can_activate(player, self.board, self._turn_count)
         return {
             'current_player': player,
             'opponent': self.opponent_player,
+            'skill_name': skill.skill_name if skill else "无",
+            'skill_description': skill.description if skill else "",
             'skill_active': can_use,
             'state': self._state,
         }
